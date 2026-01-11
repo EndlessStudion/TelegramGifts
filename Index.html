@@ -1,0 +1,4210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Gifts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a1a2a 0%, #152238 100%);
+            color: #F5F9FF;
+            min-height: 100vh;
+            overflow-x: hidden;
+            cursor: default;
+            touch-action: pan-y;
+        }
+
+        /* Стили для античита */
+        .anti-click-warning {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.95), rgba(255, 152, 0, 0.95));
+            color: #333;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            border: 2px solid #FF9800;
+            animation: warningShake 0.5s ease-in-out;
+            max-width: 90%;
+            width: 400px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes warningShake {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            25% { transform: translateX(-50%) translateY(-5px) rotate(-1deg); }
+            50% { transform: translateX(-50%) translateY(5px) rotate(1deg); }
+            75% { transform: translateX(-50%) translateY(-3px) rotate(-0.5deg); }
+        }
+
+        .warning-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .warning-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .warning-text {
+            flex: 1;
+        }
+
+        .warning-text strong {
+            color: #d32f2f;
+            font-size: 1.1rem;
+        }
+
+        .warning-text small {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        /* Стили для постоянного бана */
+        .permanent-ban-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: banFadeIn 0.5s ease-out;
+        }
+
+        @keyframes banFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .ban-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            animation: banSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes banSlideIn {
+            0% {
+                transform: translateY(-50px) scale(0.9);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .ban-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: banPulse 2s infinite;
+        }
+
+        @keyframes banPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .ban-title {
+            font-size: 1.8rem;
+            color: #f44336;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(244, 67, 54, 0.3);
+        }
+
+        .ban-reason {
+            font-size: 1.1rem;
+            color: #ff9800;
+            margin-bottom: 30px;
+            padding: 10px;
+            background: rgba(255, 152, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .ban-unban-section {
+            margin: 30px 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .unban-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .unban-input:focus {
+            border-color: #4CAF50;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+
+        .unban-btn {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .unban-btn:hover {
+            background: linear-gradient(135deg, #66BB6A, #388E3C);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .ban-details {
+            margin-top: 25px;
+            color: #a0b1c8;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20, 30, 48, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            height: 60px;
+        }
+
+        .counters-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            min-width: 250px;
+        }
+
+        .counter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 120px;
+        }
+
+        .counter-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            -webkit-user-drag: none;
+        }
+
+        .star-icon {
+            animation: starPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 6px #FFD700);
+        }
+
+        .ton-icon {
+            animation: tonPulse 2s ease-in-out infinite 0.3s;
+        }
+
+        @keyframes starPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes tonPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .counter-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .counter-label {
+            font-size: 0.7rem;
+            color: #a0b1c8;
+            font-weight: 500;
+        }
+
+        .counter-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stars-counter .counter-value {
+            color: #FFD700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .ton-counter .counter-value {
+            color: #0088CC;
+            text-shadow: 0 0 8px rgba(0, 136, 204, 0.3);
+        }
+
+        .top-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 5px 0;
+            max-width: 500px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .top-controls::-webkit-scrollbar {
+            display: none;
+            height: 0;
+        }
+
+        .exchange-btn-top, .promo-btn-top, .shop-btn-top, .inventory-btn-top, .trading-btn-top {
+            background: linear-gradient(135deg, #0088CC, #006699);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .promo-btn-top {
+            background: linear-gradient(135deg, #FF4081, #D81B60);
+        }
+
+        .shop-btn-top {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+        }
+
+        .inventory-btn-top {
+            background: linear-gradient(135deg, #FF9800, #EF6C00);
+        }
+
+        .trading-btn-top {
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+        }
+
+        .exchange-btn-top:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #0099EE, #0077AA);
+            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
+        }
+
+        .promo-btn-top:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #FF5C8D, #E91E63);
+            box-shadow: 0 4px 12px rgba(255, 64, 129, 0.3);
+        }
+
+        .shop-btn-top:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #66BB6A, #388E3C);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .inventory-btn-top:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #FFB74D, #F57C00);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        }
+
+        .trading-btn-top:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #AB47BC, #8E24AA);
+            box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+        }
+
+        .exchange-btn-top:active, .promo-btn-top:active, .shop-btn-top:active, .inventory-btn-top:active, .trading-btn-top:active {
+            transform: translateY(0);
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 80px 20px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            margin-top: 10px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #2AABEE, #FFD700);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            color: #8E9BAE;
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+
+        .click-area {
+            width: 260px;
+            height: 260px;
+            cursor: pointer;
+            margin: 30px 0;
+            position: relative;
+            transition: transform 0.15s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
+            touch-action: manipulation;
+        }
+
+        .click-area:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .click-area:active {
+            transform: scale(0.95);
+        }
+
+        .main-star {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.7));
+            animation: starFloat 4s ease-in-out infinite;
+            -webkit-user-drag: none;
+        }
+
+        @keyframes starFloat {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg);
+            }
+            50% { 
+                transform: translateY(-10px) rotate(5deg);
+            }
+        }
+
+        /* Исправленная иконка TON (без белого фона) */
+        .ton-icon-fixed {
+            filter: invert(27%) sepia(98%) saturate(2000%) hue-rotate(180deg) brightness(90%) contrast(90%) drop-shadow(0 0 6px rgba(0, 136, 204, 0.7));
+        }
+
+        .ton-result-icon {
+            filter: invert(27%) sepia(98%) saturate(2000%) hue-rotate(180deg) brightness(90%) contrast(90%) drop-shadow(0 0 5px rgba(0, 136, 204, 0.5));
+        }
+
+        /* Модальные окна с улучшенными анимациями */
+        .exchange-modal, .promo-modal, .shop-modal, .inventory-modal, .trading-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .exchange-modal.active, .promo-modal.active, .shop-modal.active, .inventory-modal.active, .trading-modal.active {
+            display: flex;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            pointer-events: auto;
+            animation: modalFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .exchange-modal.closing, .promo-modal.closing, .shop-modal.closing, .inventory-modal.closing, .trading-modal.closing {
+            animation: modalFadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                background: rgba(0, 0, 0, 0);
+                backdrop-filter: blur(0px);
+            }
+            to {
+                opacity: 1;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(10px);
+            }
+        }
+
+        @keyframes modalFadeOut {
+            from {
+                opacity: 1;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(10px);
+            }
+            to {
+                opacity: 0;
+                background: rgba(0, 0, 0, 0);
+                backdrop-filter: blur(0px);
+            }
+        }
+
+        .exchange-panel, .promo-panel, .shop-panel, .inventory-panel, .trading-panel {
+            background: linear-gradient(135deg, rgba(15, 25, 40, 0.95), rgba(10, 20, 35, 0.95));
+            border-radius: 20px;
+            padding: 25px;
+            width: 450px;
+            max-width: 95%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transform: translateY(30px) scale(0.95);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .trading-panel {
+            max-height: 90vh;
+        }
+
+        .trades-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .trades-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .trades-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .trades-container::-webkit-scrollbar-thumb {
+            background: rgba(156, 39, 176, 0.5);
+            border-radius: 3px;
+        }
+
+        .trades-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 39, 176, 0.7);
+        }
+
+        .exchange-modal.active .exchange-panel,
+        .promo-modal.active .promo-panel,
+        .shop-modal.active .shop-panel,
+        .inventory-modal.active .inventory-panel,
+        .trading-modal.active .trading-panel {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            animation: panelSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .exchange-modal.closing .exchange-panel,
+        .promo-modal.closing .promo-panel,
+        .shop-modal.closing .shop-panel,
+        .inventory-modal.closing .inventory-panel,
+        .trading-modal.closing .trading-panel {
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
+            animation: panelSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes panelSlideIn {
+            0% {
+                transform: translateY(30px) scale(0.95);
+                opacity: 0;
+            }
+            70% {
+                transform: translateY(-5px) scale(1.02);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes panelSlideOut {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(20px) scale(0.95);
+                opacity: 0;
+            }
+        }
+
+        .exchange-header, .promo-header, .shop-header, .inventory-header, .trading-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .exchange-title, .promo-title, .shop-title, .inventory-title, .trading-title {
+            font-size: 1.3rem;
+            color: #FFD700;
+            font-weight: 600;
+        }
+
+        .promo-title {
+            color: #FF4081;
+        }
+
+        .shop-title {
+            color: #4CAF50;
+        }
+
+        .inventory-title {
+            color: #FF9800;
+        }
+
+        .trading-title {
+            color: #9C27B0;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #a0b1c8;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        /* УЛУЧШЕННЫЕ СТИЛИ ДЛЯ ТРЕЙДИНГА С СЛОЯМИ */
+        .trading-tab-container {
+            display: flex;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .trading-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: #a0b1c8;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .trading-tab.active {
+            background: rgba(156, 39, 176, 0.3);
+            color: white;
+        }
+
+        .trading-layer {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .trading-layer.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .trade-item {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .trade-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .trade-bot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .bot-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .bot-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bot-name {
+            font-weight: 600;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .bot-rating {
+            font-size: 0.75rem;
+            color: #FFD700;
+        }
+
+        .trade-offer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .trade-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .trade-label {
+            font-size: 0.8rem;
+            color: #a0b1c8;
+        }
+
+        .trade-resource {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            min-width: 100px;
+            justify-content: center;
+        }
+
+        .trade-resource-icon {
+            width: 20px;
+            height: 20px;
+            filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.5));
+            border-radius: 4px;
+        }
+
+        .trade-resource.ton .trade-resource-icon {
+            filter: invert(27%) sepia(98%) saturate(2000%) hue-rotate(180deg) brightness(90%) contrast(90%) drop-shadow(0 0 3px rgba(0, 136, 204, 0.5));
+        }
+
+        .trade-resource.gift .trade-resource-icon {
+            filter: none;
+            border-radius: 4px;
+        }
+
+        .trade-resource-amount {
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .trade-arrow {
+            font-size: 1.3rem;
+            color: #9C27B0;
+            margin: 0 8px;
+        }
+
+        .trade-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .trade-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 0.85rem;
+        }
+
+        .trade-btn.accept {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+        }
+
+        .trade-btn.accept:hover:not(:disabled) {
+            background: linear-gradient(135deg, #66BB6A, #388E3C);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .trade-btn.reject {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .trade-btn.reject:hover:not(:disabled) {
+            background: linear-gradient(135deg, #ef5350, #e53935);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+        }
+
+        .trade-btn.add {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .trade-btn.add:hover:not(:disabled) {
+            background: linear-gradient(135deg, #42A5F5, #1E88E5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+        }
+
+        .trade-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .create-trade-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .trade-input-group {
+            margin-bottom: 12px;
+        }
+
+        .trade-input-label {
+            color: #a0b1c8;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .trade-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .trade-input:focus {
+            border-color: #9C27B0;
+            box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.2);
+        }
+
+        .trade-resource-selection {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .resource-select-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.07);
+            border: 2px solid transparent;
+            border-radius: 6px;
+            padding: 8px 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.8rem;
+            min-width: 70px;
+        }
+
+        .resource-select-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .resource-select-btn.active {
+            border-color: #9C27B0;
+            background: rgba(156, 39, 176, 0.1);
+        }
+
+        .gift-select-container {
+            margin-top: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 8px;
+        }
+
+        .gift-select-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px;
+            margin-bottom: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gift-select-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .gift-select-item.active {
+            border: 2px solid #9C27B0;
+            background: rgba(156, 39, 176, 0.1);
+        }
+
+        .gift-select-item img {
+            width: 25px;
+            height: 25px;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+
+        .gift-select-name {
+            font-size: 0.8rem;
+            color: white;
+            flex: 1;
+        }
+
+        .gift-quantity {
+            font-size: 0.75rem;
+            color: #a0b1c8;
+        }
+
+        .create-trade-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            margin-top: 12px;
+        }
+
+        .create-trade-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #AB47BC, #8E24AA);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
+        }
+
+        .create-trade-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .no-trades {
+            text-align: center;
+            padding: 30px 15px;
+            color: #8E9BAE;
+            font-size: 0.9rem;
+        }
+
+        .bot-message {
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 6px;
+            padding: 8px;
+            margin: 8px 0;
+            text-align: center;
+            color: #FFC107;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .bot-message.warning {
+            background: rgba(244, 67, 54, 0.1);
+            color: #ff6b6b;
+        }
+
+        .bot-message.success {
+            background: rgba(76, 175, 80, 0.1);
+            color: #66BB6A;
+        }
+
+        /* Стили для магазина */
+        .shop-items-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .shop-items-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .shop-items-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .shop-items-container::-webkit-scrollbar-thumb {
+            background: rgba(76, 175, 80, 0.5);
+            border-radius: 3px;
+        }
+
+        .shop-items-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(76, 175, 80, 0.7);
+        }
+
+        .shop-item {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-height: 100px;
+        }
+
+        .shop-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .item-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+        }
+
+        .golden-item img {
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+            animation: goldGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes goldGlow {
+            0%, 100% { 
+                filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+                transform: scale(1);
+            }
+            50% { 
+                filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.6));
+                transform: scale(1.03);
+            }
+        }
+
+        .pink-item img {
+            filter: drop-shadow(0 0 6px rgba(255, 105, 180, 0.4));
+        }
+
+        .green-item img {
+            filter: drop-shadow(0 0 6px rgba(76, 175, 80, 0.4));
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-name {
+            font-size: 1rem;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-price {
+            font-size: 1rem;
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .buy-btn {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: 40px;
+        }
+
+        .buy-btn:hover {
+            background: linear-gradient(135deg, #66BB6A, #388E3C);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .buy-btn:active {
+            transform: translateY(0);
+        }
+
+        .buy-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Стили для инвентаря */
+        .inventory-items-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin-bottom: 20px;
+        }
+
+        .inventory-items-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .inventory-items-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .inventory-items-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 152, 0, 0.5);
+            border-radius: 3px;
+        }
+
+        .inventory-items-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 152, 0, 0.7);
+        }
+
+        .inventory-item {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-height: 100px;
+        }
+
+        .inventory-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .item-quantity {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(239, 108, 0, 0.2));
+            border-radius: 50%;
+            font-weight: 700;
+            color: #FF9800;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .sell-btn {
+            background: linear-gradient(135deg, #FF9800, #EF6C00);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: 40px;
+        }
+
+        .sell-btn:hover {
+            background: linear-gradient(135deg, #FFB74D, #F57C00);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        }
+
+        .sell-btn:active {
+            transform: translateY(0);
+        }
+
+        .empty-inventory {
+            text-align: center;
+            color: #8E9BAE;
+            padding: 40px 20px;
+            font-size: 1rem;
+        }
+
+        /* Остальные стили */
+        .exchange-rate-container {
+            background: rgba(0, 136, 204, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 136, 204, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rate-label {
+            color: #a0b1c8;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .rate-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0088CC;
+        }
+
+        .rate-change {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .rate-up {
+            background: rgba(0, 200, 83, 0.2);
+            color: #00C853;
+            display: block;
+        }
+
+        .rate-down {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+            display: block;
+        }
+
+        .rate-stable {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+            display: block;
+        }
+
+        .star-rate-icon {
+            width: 28px;
+            height: 28px;
+            vertical-align: middle;
+            margin: 0 8px;
+            filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+        }
+
+        .exchange-input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            color: #a0b1c8;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .exchange-input-wrapper {
+            position: relative;
+        }
+
+        .exchange-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            caret-color: #2AABEE;
+        }
+
+        .exchange-input.no-focus {
+            caret-color: transparent;
+        }
+
+        .exchange-input:focus {
+            border-color: #2AABEE;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(42, 171, 238, 0.2);
+        }
+
+        .input-hint {
+            color: #8E9BAE;
+            font-size: 0.8rem;
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .quick-amounts {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .quick-amount-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            color: #a0b1c8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .quick-amount-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .quick-amount-btn.active {
+            background: rgba(0, 136, 204, 0.2);
+            border-color: #0088CC;
+            color: white;
+        }
+
+        .exchange-result {
+            background: rgba(0, 136, 204, 0.08);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 136, 204, 0.15);
+            text-align: center;
+        }
+
+        .result-label {
+            color: #a0b1c8;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #FFD700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .result-ton-icon {
+            width: 28px;
+            height: 28px;
+        }
+
+        .exchange-action {
+            display: flex;
+            gap: 12px;
+        }
+
+        .exchange-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #0088CC, #006699);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .exchange-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #0099EE, #0077AA);
+            box-shadow: 0 8px 20px rgba(0, 136, 204, 0.4);
+        }
+
+        .exchange-btn:active {
+            transform: translateY(0);
+        }
+
+        .exchange-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            background: linear-gradient(135deg, #0088CC, #006699);
+            box-shadow: none;
+        }
+
+        /* Стили для промокодов */
+        .promo-input-group {
+            margin-bottom: 20px;
+        }
+
+        .promo-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .promo-input:focus {
+            border-color: #FF4081;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(255, 64, 129, 0.2);
+        }
+
+        .promo-input::placeholder {
+            color: #8E9BAE;
+            text-transform: none;
+        }
+
+        .promo-activate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #FF4081, #D81B60);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .promo-activate-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #FF5C8D, #E91E63);
+            box-shadow: 0 8px 20px rgba(255, 64, 129, 0.4);
+        }
+
+        .promo-activate-btn:active {
+            transform: translateY(0);
+        }
+
+        .promo-activate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Секция улучшений */
+        .upgrades-section {
+            margin-top: 40px;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .upgrades-title {
+            font-size: 1.4rem;
+            color: #FFD700;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .upgrade-item {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .upgrade-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upgrade-item.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .upgrade-item.disabled:hover {
+            transform: none;
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .upgrade-item.max-level {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.15));
+            border-color: rgba(255, 193, 7, 0.3);
+        }
+
+        .upgrade-info {
+            flex: 1;
+        }
+
+        .upgrade-name {
+            font-size: 1.1rem;
+            color: white;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .upgrade-description {
+            font-size: 0.9rem;
+            color: #a0b1c8;
+        }
+
+        .upgrade-cost {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 193, 7, 0.15));
+            border-radius: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .cost-icon {
+            width: 20px;
+            height: 20px;
+            filter: drop-shadow(0 0 3px #FFD700);
+        }
+
+        .cost-amount {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #FFD700;
+        }
+
+        .upgrade-level {
+            font-size: 0.9rem;
+            color: #FFD700;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 8px 15px;
+                height: 55px;
+                flex-wrap: nowrap;
+            }
+            
+            .counters-container {
+                gap: 10px;
+                min-width: 200px;
+            }
+            
+            .counter-item {
+                min-width: 90px;
+                padding: 5px 10px;
+            }
+            
+            .counter-value {
+                font-size: 1.1rem;
+            }
+            
+            .counter-icon {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .top-controls {
+                gap: 10px;
+                padding: 5px;
+            }
+            
+            .exchange-btn-top, .promo-btn-top, .shop-btn-top, .inventory-btn-top, .trading-btn-top {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .click-area {
+                width: 220px;
+                height: 220px;
+            }
+            
+            .exchange-panel, .promo-panel, .shop-panel, .inventory-panel, .trading-panel {
+                padding: 20px;
+                width: 95%;
+            }
+            
+            .trades-container {
+                max-height: 250px;
+            }
+            
+            .trade-item {
+                padding: 12px;
+            }
+            
+            .trade-offer {
+                padding: 10px;
+            }
+            
+            .trade-resource {
+                min-width: 80px;
+                padding: 6px 8px;
+            }
+            
+            .trade-resource-amount {
+                font-size: 0.85rem;
+            }
+            
+            .quick-amounts {
+                flex-wrap: wrap;
+            }
+            
+            .shop-item, .inventory-item {
+                height: 90px;
+                padding: 12px;
+            }
+            
+            .item-image {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .buy-btn, .sell-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .trade-actions {
+                flex-direction: row;
+                gap: 6px;
+            }
+            
+            .trade-btn {
+                padding: 6px;
+                font-size: 0.8rem;
+            }
+            
+            .anti-click-warning {
+                width: 90%;
+                padding: 12px 20px;
+            }
+            
+            .ban-content {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-bar {
+                flex-direction: row;
+                height: 60px;
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .counters-container {
+                min-width: 160px;
+            }
+            
+            .counter-item {
+                min-width: 80px;
+                padding: 4px 8px;
+            }
+            
+            .counter-value {
+                font-size: 1rem;
+            }
+            
+            .top-controls {
+                max-width: 300px;
+            }
+            
+            .content {
+                padding-top: 100px;
+            }
+            
+            .trading-panel {
+                max-height: 85vh;
+            }
+            
+            .trades-container {
+                max-height: 200px;
+            }
+            
+            .trade-offer {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .trade-arrow {
+                transform: rotate(90deg);
+                margin: 5px 0;
+            }
+            
+            .trade-resource {
+                width: 100%;
+                max-width: 150px;
+            }
+            
+            .shop-item, .inventory-item {
+                flex-direction: column;
+                height: auto;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .item-image {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .buy-btn, .sell-btn {
+                width: 100%;
+            }
+            
+            .ban-unban-section {
+                flex-direction: column;
+            }
+            
+            .unban-btn {
+                width: 100%;
+            }
+            
+            .trade-resource-selection {
+                flex-direction: column;
+            }
+            
+            .resource-select-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .top-bar {
+                padding: 8px 5px;
+            }
+            
+            .top-controls {
+                gap: 5px;
+            }
+            
+            .exchange-btn-top, .promo-btn-top, .shop-btn-top, .inventory-btn-top, .trading-btn-top {
+                padding: 6px 8px;
+                font-size: 0.75rem;
+            }
+            
+            .counter-item {
+                min-width: 70px;
+            }
+            
+            .counter-value {
+                font-size: 0.9rem;
+            }
+            
+            .trades-container {
+                max-height: 180px;
+            }
+            
+            .trade-item {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="top-bar">
+        <div class="counters-container">
+            <div class="counter-item stars-counter">
+                <img src="https://nztcdn.com/files/6514f1e6-dab4-4d49-806a-3ff22d7793e5.webp" 
+                     class="counter-icon star-icon" 
+                     alt="★">
+                <div class="counter-info">
+                    <div class="counter-label">ЗВЁЗДЫ</div>
+                    <div class="counter-value" id="starsCounter">0</div>
+                </div>
+            </div>
+            
+            <div class="counter-item ton-counter">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrViWg0D72Yqmv2P4r2vO7arNp_IoIofGKyw&usqp=CAU" 
+                     class="counter-icon ton-icon ton-icon-fixed" 
+                     alt="TON">
+                <div class="counter-info">
+                    <div class="counter-label">TON</div>
+                    <div class="counter-value" id="tonCounter">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="top-controls">
+            <button class="exchange-btn-top" id="exchangeBtnTop">
+                <span>💎</span>
+                ОБМЕН
+            </button>
+            <button class="promo-btn-top" id="promoBtnTop">
+                <span>🎁</span>
+                ПРОМОКОДЫ
+            </button>
+            <button class="shop-btn-top" id="shopBtnTop">
+                <span>🛒</span>
+                МАГАЗИН
+            </button>
+            <button class="inventory-btn-top" id="inventoryBtnTop">
+                <span>🎒</span>
+                ИНВЕНТАРЬ
+            </button>
+            <!-- НОВАЯ КНОПКА ТРЕЙДИНГА -->
+            <button class="trading-btn-top" id="tradingBtnTop">
+                <span>🤝</span>
+                ТРЕЙДИНГ
+            </button>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <h1 class="title">Telegram Gifts</h1>
+            <p class="subtitle">Кликай, собирай, обменивай</p>
+        </div>
+
+        <div class="click-area" id="clickArea">
+            <img src="https://nztcdn.com/files/6514f1e6-dab4-4d49-806a-3ff22d7793e5.webp" 
+                 class="main-star" 
+                 alt="★"
+                 id="mainStar">
+        </div>
+
+        <div class="upgrades-section">
+            <h3 class="upgrades-title">⚡ УЛУЧШЕНИЯ ⚡</h3>
+            <div class="upgrade-item" id="clickUpgrade">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Усиление клика</div>
+                    <div class="upgrade-description">Звёзд за клик: <span id="clickPowerDisplay">1</span></div>
+                    <div class="upgrade-level">Уровень: <span id="clickLevel">0</span>/5</div>
+                </div>
+                <div class="upgrade-cost">
+                    <img src="https://nztcdn.com/files/6514f1e6-dab4-4d49-806a-3ff22d7793e5.webp" 
+                         class="cost-icon" 
+                         alt="★">
+                    <span class="cost-amount" id="clickCost">500</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно обмена -->
+    <div class="exchange-modal" id="exchangeModal">
+        <div class="exchange-panel">
+            <div class="exchange-header">
+                <div class="exchange-title">ОБМЕН ЗВЁЗД НА TON</div>
+                <button class="close-btn" id="closeExchangeModal">✕</button>
+            </div>
+            
+            <div class="exchange-rate-container" id="rateContainer">
+                <div class="rate-label">ТЕКУЩИЙ КУРС</div>
+                <div class="rate-value">
+                    <span id="exchangeRate">200</span> 
+                    <img src="https://nztcdn.com/files/6514f1e6-dab4-4d49-806a-3ff22d7793e5.webp" 
+                         class="star-rate-icon" 
+                         alt="★"> 
+                    = 1 TON
+                </div>
+                <div class="rate-change" id="rateChangeIndicator"></div>
+            </div>
+
+            <div class="exchange-input-group">
+                <label class="input-label">СКОЛЬКО ЗВЁЗД ОБМЕНЯТЬ?</label>
+                <div class="exchange-input-wrapper">
+                    <input type="number" 
+                           id="starsToExchange" 
+                           class="exchange-input no-focus"
+                           placeholder="Нажмите чтобы ввести"
+                           min="100"
+                           step="10"
+                           readonly
+                           onfocus="this.removeAttribute('readonly'); this.classList.remove('no-focus');">
+                </div>
+                <div class="input-hint" id="inputHint">Минимум: 100 звёзд</div>
+            </div>
+
+            <div class="quick-amounts">
+                <button class="quick-amount-btn" data-amount="100">100</button>
+                <button class="quick-amount-btn" data-amount="500">500</button>
+                <button class="quick-amount-btn" data-amount="1000">1,000</button>
+                <button class="quick-amount-btn" data-amount="5000">5,000</button>
+                <button class="quick-amount-btn" data-amount="max">MAX</button>
+            </div>
+
+            <div class="exchange-result">
+                <div class="result-label">ВЫ ПОЛУЧИТЕ</div>
+                <div class="result-value">
+                    <span id="tonResult">0</span>
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrViWg0D72Yqmv2P4r2vO7arNp_IoIofGKyw&usqp=CAU" 
+                         class="result-ton-icon ton-result-icon" 
+                         alt="TON">
+                </div>
+            </div>
+
+            <div class="exchange-action">
+                <button id="exchangeBtn" class="exchange-btn" disabled>ПОДТВЕРДИТЬ ОБМЕН</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно промокодов -->
+    <div class="promo-modal" id="promoModal">
+        <div class="promo-panel">
+            <div class="promo-header">
+                <div class="promo-title">🎁 АКТИВАЦИЯ ПРОМОКОДОВ</div>
+                <button class="close-btn" id="closePromoModal">✕</button>
+            </div>
+
+            <div class="promo-input-group">
+                <input type="text" 
+                       id="promoCodeInput" 
+                       class="promo-input" 
+                       placeholder="Введите промокод и нажмите Активировать"
+                       maxlength="20">
+            </div>
+
+            <button id="activatePromoBtn" class="promo-activate-btn">АКТИВИРОВАТЬ</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно магазина -->
+    <div class="shop-modal" id="shopModal">
+        <div class="shop-panel">
+            <div class="shop-header">
+                <div class="shop-title">🛒 МАГАЗИН ПОДАРКОВ</div>
+                <button class="close-btn" id="closeShopModal">✕</button>
+            </div>
+            
+            <div class="shop-items-container" id="shopItemsContainer">
+                <!-- Товары будут добавляться динамически -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно инвентаря -->
+    <div class="inventory-modal" id="inventoryModal">
+        <div class="inventory-panel">
+            <div class="inventory-header">
+                <div class="inventory-title">🎒 ВАШ ИНВЕНТАРЬ</div>
+                <button class="close-btn" id="closeInventoryModal">✕</button>
+            </div>
+            
+            <div class="inventory-items-container" id="inventoryItemsContainer">
+                <div class="empty-inventory" id="emptyInventoryMessage">
+                    🎁 Инвентарь пуст<br>
+                    <small>Купите подарки в магазине!</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- НОВОЕ МОДАЛЬНОЕ ОКНО ТРЕЙДИНГА -->
+    <div class="trading-modal" id="tradingModal">
+        <div class="trading-panel">
+            <div class="trading-header">
+                <div class="trading-title">🤝 ТОРГОВЛЯ С БОТАМИ</div>
+                <button class="close-btn" id="closeTradingModal">✕</button>
+            </div>
+            
+            <!-- Вкладки для переключения между слоями -->
+            <div class="trading-tab-container">
+                <button class="trading-tab active" data-layer="active">🏆 Активные трейды</button>
+                <button class="trading-tab" data-layer="create">📝 Создать трейд</button>
+                <button class="trading-tab" data-layer="history">📊 История</button>
+            </div>
+            
+            <!-- Слой активных трейдов -->
+            <div class="trading-layer active" id="activeTradesLayer">
+                <div class="trades-container" id="tradesContainer">
+                    <!-- Активные трейды будут добавляться динамически -->
+                    <div class="no-trades">🤝 Нет активных трейдов. Создайте первый!</div>
+                </div>
+            </div>
+            
+            <!-- Слой создания трейдов -->
+            <div class="trading-layer" id="createTradeLayer">
+                <div class="create-trade-section">
+                    <div class="trade-input-group">
+                        <label class="trade-input-label">ЧТО ВЫ ОТДАЁТЕ:</label>
+                        <div class="trade-resource-selection" id="offerSelection">
+                            <button class="resource-select-btn active" data-type="stars">
+                                ⭐ Звёзды <span id="starsTradeBalance">0</span>
+                            </button>
+                            <button class="resource-select-btn" data-type="ton">
+                                💎 TON <span id="tonTradeBalance">0</span>
+                            </button>
+                            <button class="resource-select-btn" data-type="gift">
+                                🎁 Подарок
+                            </button>
+                        </div>
+                        <div class="gift-select-container" id="giftOfferSelection" style="display: none;">
+                            <!-- Подарки будут добавляться динамически -->
+                        </div>
+                    </div>
+                    
+                    <div class="trade-input-group">
+                        <label class="trade-input-label">КОЛИЧЕСТВО/ВЫБОР:</label>
+                        <input type="number" id="tradeAmount" class="trade-input" placeholder="Введите количество" min="1" value="100">
+                        <div class="input-hint" id="tradeAmountHint">Минимум: 10</div>
+                    </div>
+                    
+                    <div class="trade-input-group">
+                        <label class="trade-input-label">ЧТО ПОЛУЧАЕТЕ:</label>
+                        <div class="trade-resource-selection" id="requestSelection">
+                            <button class="resource-select-btn" data-type="stars">⭐ Звёзды</button>
+                            <button class="resource-select-btn active" data-type="ton">💎 TON</button>
+                            <button class="resource-select-btn" data-type="gift">🎁 Подарок</button>
+                        </div>
+                        <div class="gift-select-container" id="giftRequestSelection" style="display: none;">
+                            <!-- Подарки будут добавляться динамически -->
+                        </div>
+                    </div>
+                    
+                    <button id="createTradeBtn" class="create-trade-btn">
+                        🤝 СОЗДАТЬ ТРЕЙД
+                    </button>
+                    
+                    <div class="input-hint" style="margin-top: 10px; text-align: center; font-size: 0.8rem;">
+                        💡 Совет: Боты принимают более выгодные предложения!
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Слой истории трейдов -->
+            <div class="trading-layer" id="historyLayer">
+                <div class="trades-container" id="historyContainer">
+                    <div class="no-trades">📊 История трейдов пуста</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Промокоды для разблокировки
+        window.UNBAN_CODES = [
+            "X7#kL9$qP2@mN5&",
+            "R3!tY8*zB4%vC6^",
+            "F9@jM2#wD5&pQ7*",
+            "H4^gK6!sL8$rT0%",
+            "Z1%nV3@cX7#bJ9!"
+        ];
+
+        // Система античита
+        window.antiAutoClick = {
+            clickHistory: [],
+            lastClickTime: 0,
+            sessionClicks: 0,
+            sessionStart: Date.now(),
+            isBlocked: false,
+            settings: {
+                maxCPS: 25,
+                maxSessionClicks: 5000,
+                sessionDuration: 300000,
+                patternThreshold: 0.9,
+                coolDownTime: 30000,
+                minClickInterval: 20,
+                maxWarnings: 3
+            },
+            
+            init: function() {
+                this.clickHistory = [];
+                this.sessionStart = Date.now();
+                this.sessionClicks = 0;
+                this.isBlocked = false;
+                
+                // Проверяем базу данных
+                if (!window.db) {
+                    window.db = {
+                        isBanned: false,
+                        warnings: 0,
+                        banReason: '',
+                        userId: 'user_' + Math.random().toString(36).substr(2, 9),
+                        usedUnbanCodes: []
+                    };
+                }
+                
+                if (window.db.isBanned) {
+                    this.showPermanentBan();
+                    return false;
+                }
+                return true;
+            },
+            
+            canClick: function(x, y) {
+                if (window.db.isBanned) return false;
+                const now = Date.now();
+                if (this.isBlocked) {
+                    if (now - this.lastClickTime < this.settings.coolDownTime) return false;
+                    this.isBlocked = false;
+                    this.sessionClicks = 0;
+                    this.sessionStart = now;
+                }
+                if (now - this.lastClickTime < this.settings.minClickInterval) return false;
+                const clickData = { 
+                    time: now, 
+                    x: x, 
+                    y: y, 
+                    interval: this.lastClickTime ? now - this.lastClickTime : 0 
+                };
+                this.clickHistory.push(clickData);
+                this.lastClickTime = now;
+                this.sessionClicks++;
+                if (this.clickHistory.length > 100) this.clickHistory.shift();
+                if (this.clickHistory.length > 30 && this.detectPattern()) {
+                    this.giveWarning("Обнаружены автоматические клики");
+                    return false;
+                }
+                if (this.checkClickSpeed()) {
+                    this.giveWarning("Слишком высокая скорость кликов");
+                    return false;
+                }
+                if (this.sessionClicks > this.settings.maxSessionClicks && (now - this.sessionStart) < this.settings.sessionDuration) {
+                    this.giveWarning("Превышен лимит кликов за сессию");
+                    return false;
+                }
+                return true;
+            },
+            
+            checkClickSpeed: function() {
+                if (this.clickHistory.length < 10) return false;
+                const recentClicks = this.clickHistory.slice(-10);
+                const firstTime = recentClicks[0].time;
+                const lastTime = recentClicks[recentClicks.length - 1].time;
+                const timeDiff = lastTime - firstTime;
+                if (timeDiff < 1000) {
+                    const cps = (recentClicks.length / timeDiff) * 1000;
+                    if (cps > this.settings.maxCPS) return true;
+                }
+                return false;
+            },
+            
+            detectPattern: function() {
+                if (this.clickHistory.length < 30) return false;
+                const intervals = [];
+                const positions = [];
+                for (let i = 1; i < this.clickHistory.length; i++) {
+                    intervals.push(this.clickHistory[i].interval);
+                    positions.push({ x: this.clickHistory[i].x, y: this.clickHistory[i].y });
+                }
+                const intervalPattern = this.checkRegularity(intervals);
+                const positionPattern = this.checkPositionPattern(positions);
+                return (intervalPattern && positionPattern);
+            },
+            
+            checkRegularity: function(intervals) {
+                if (intervals.length < 10) return false;
+                let regularityScore = 0;
+                const threshold = 10;
+                for (let i = 1; i < intervals.length; i++) {
+                    if (Math.abs(intervals[i] - intervals[i-1]) < threshold) regularityScore++;
+                }
+                return (regularityScore / intervals.length) > this.settings.patternThreshold;
+            },
+            
+            checkPositionPattern: function(positions) {
+                if (positions.length < 10) return false;
+                let patternScore = 0;
+                const posThreshold = 5;
+                for (let i = 1; i < positions.length; i++) {
+                    const dx = Math.abs(positions[i].x - positions[i-1].x);
+                    const dy = Math.abs(positions[i].y - positions[i-1].y);
+                    if (dx < posThreshold && dy < posThreshold) patternScore++;
+                }
+                return (patternScore / positions.length) > this.settings.patternThreshold;
+            },
+            
+            giveWarning: function(reason) {
+                this.isBlocked = true;
+                this.lastClickTime = Date.now();
+                window.db.warnings++;
+                this.save();
+                if (window.db.warnings >= this.settings.maxWarnings) {
+                    this.banPermanently("Множественные нарушения правил (автокликер)");
+                    return;
+                }
+                this.showWarning(reason, window.db.warnings);
+            },
+            
+            banPermanently: function(reason) {
+                window.db.isBanned = true;
+                window.db.banReason = reason;
+                this.save();
+                this.showPermanentBan();
+            },
+            
+            showWarning: function(reason, warningNumber) {
+                const warning = document.createElement('div');
+                warning.className = 'anti-click-warning';
+                warning.innerHTML = `
+                    <div class="warning-content">
+                        <div class="warning-icon">⚠️</div>
+                        <div class="warning-text">
+                            <strong>ПРЕДУПРЕЖДЕНИЕ ${warningNumber}/${this.settings.maxWarnings}</strong><br>
+                            ${reason}<br>
+                            <small>Блокировка: 30 секунд</small><br>
+                            <small>После ${this.settings.maxWarnings} предупреждений - вечный бан!</small>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(warning);
+                setTimeout(() => {
+                    if (warning.parentNode) {
+                        warning.style.opacity = '0';
+                        setTimeout(() => warning.remove(), 300);
+                    }
+                }, 5000);
+            },
+            
+            showPermanentBan: function() {
+                document.querySelector('.top-bar').style.display = 'none';
+                document.querySelector('.content').style.display = 'none';
+                
+                const banScreen = document.createElement('div');
+                banScreen.className = 'permanent-ban-screen';
+                banScreen.innerHTML = `
+                    <div class="ban-content">
+                        <div class="ban-icon">🚫</div>
+                        <div class="ban-title">АККАУНТ ЗАБЛОКИРОВАН</div>
+                        <div class="ban-reason">Причина: ${window.db.banReason}</div>
+                        <div class="ban-unban-section">
+                            <input type="text" id="unban-code-input" placeholder="Введите код разблокировки" class="unban-input">
+                            <button onclick="window.checkUnbanCode()" class="unban-btn">РАЗБЛОКИРОВАТЬ</button>
+                        </div>
+                        <div class="ban-details">
+                            ID: ${window.db.userId}<br>
+                            <small>Коды разблокировки можно получить у администрации</small>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(banScreen);
+            },
+            
+            save: function() {
+                localStorage.setItem('gameAntiCheatDB', JSON.stringify(window.db));
+            },
+            
+            resetSession: function() {
+                this.sessionClicks = Math.floor(this.sessionClicks / 2);
+                this.sessionStart = Date.now();
+                this.clickHistory = [];
+            }
+        };
+
+        window.checkUnbanCode = function() {
+            const input = document.getElementById('unban-code-input');
+            const code = input.value.trim();
+            if (!code) {
+                alert('Введите код');
+                return;
+            }
+            if (window.db.usedUnbanCodes.includes(code)) {
+                alert('Код уже использован');
+                return;
+            }
+            if (window.UNBAN_CODES.includes(code)) {
+                window.db.isBanned = false;
+                window.db.warnings = 0;
+                window.db.banReason = '';
+                window.db.usedUnbanCodes.push(code);
+                localStorage.setItem('gameAntiCheatDB', JSON.stringify(window.db));
+                const banScreen = document.querySelector('.permanent-ban-screen');
+                if (banScreen) banScreen.remove();
+                document.querySelector('.top-bar').style.display = 'flex';
+                document.querySelector('.content').style.display = 'flex';
+                alert('Аккаунт разблокирован!');
+            } else {
+                alert('Неверный код');
+            }
+        };
+
+        // ОСНОВНЫЕ ПЕРЕМЕННЫЕ ИГРЫ
+        let stars = 0;
+        let ton = 0;
+        let totalClicks = 0;
+        let clickTimes = [];
+        let cps = 0;
+        let exchangeRate = 200;
+        let previousRate = 200;
+        let sessionCount = 0;
+        let isRateVolatile = false;
+        let volatilityTimer = 0;
+        
+        // Система прокачки
+        let clickLevel = 0;
+        let clickPower = 1;
+        
+        const upgradeLevels = [
+            { level: 1, cost: 500, power: 3 },
+            { level: 2, cost: 1000, power: 4 },
+            { level: 3, cost: 2000, power: 7 },
+            { level: 4, cost: 3000, power: 10 },
+            { level: 5, cost: 6000, power: 25 }
+        ];
+
+        // База промокодов
+        const promoDatabase = {
+            'VARLOOK666': { stars: 666, ton: 3 },
+            'SOONSCHOOL': { stars: 1999, ton: 7 },
+            '1739@_₽+/': { stars: 500000, ton: 0 },
+            'SHADOW': { stars: 1000, ton: 0 },
+            'OBT': { stars: 1000, ton: 1 },
+            'UPDATE1': { stars: 1500, ton: 3 },
+            'SHATYN': { stars: 500, ton: 5 },
+            'FIGHTCL': { stars: 2000, ton: 1 },
+            'FREEDAY': { stars: 500, ton: 1 },
+            'BONIFAZ': { stars: 1000, ton: 0 },
+            'VKITOPVPN9997+-87': { stars: 100000000, ton: 1000000 }
+        };
+
+        // Использованные промокоды
+        let usedPromoCodes = JSON.parse(localStorage.getItem('usedPromoCodes')) || {};
+
+        // Инвентарь
+        let inventory = JSON.parse(localStorage.getItem('inventory')) || {};
+
+        // Магазин
+        const shopItems = [
+            {
+                id: 'plush_pepe',
+                name: 'Plus Pepe',
+                image: 'https://telegifter.ru/wp-content/themes/gifts/assets/img/gifts/plushpepe/Leonardo.webp',
+                basePrice: 10000
+            },
+            {
+                id: 'golden_ring',
+                name: 'The Golden Ring',
+                image: 'https://telegifter.ru/wp-content/themes/gifts/assets/img/gifts/signetring/Gold.webp',
+                basePrice: 15000,
+                specialClass: 'golden-item'
+            },
+            {
+                id: 'green_bag',
+                name: 'The Green Bag',
+                image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7t5_jTy3YmzS4e5CLLNj2oi6izqsPcDLs9A&usqp=CAU',
+                basePrice: 500,
+                specialClass: 'green-item'
+            },
+            {
+                id: 'hearts',
+                name: 'Hearts',
+                image: 'https://static.tildacdn.one/tild3530-3130-4636-a231-633263323566/GiftsGiftsGifts_AgAD.png',
+                basePrice: 2500
+            },
+            {
+                id: 'autumn_bouquet',
+                name: 'Autumn Bouquet',
+                image: 'https://cdn.changes.tg/gifts/models/Pretty%20Posy/png/Forester.png',
+                basePrice: 150
+            },
+            {
+                id: 'snake_2025',
+                name: 'The Snake of 2025',
+                image: 'https://tiermaker.com/images/media/template_images/2024/18350072/gifts-telegram--not-released-awebmarket--18350072/giftssoonagadlrgaakgtmvm.png',
+                basePrice: 50
+            },
+            {
+                id: 'golden_clover',
+                name: 'Golden Clover',
+                image: 'https://tgifts.store/wp-content/uploads/2025/09/Clover-Pin-5960747083030856414.png',
+                basePrice: 1500,
+                specialClass: 'golden-item'
+            },
+            {
+                id: 'telegram_button',
+                name: 'Telegram Button',
+                image: 'https://tiermaker.com/images/media/template_images/2024/18350072/gifts-telegram--not-released-awebmarket--18350072/giftssoonagad8bmaaptbyvi.png',
+                basePrice: 1000
+            },
+            {
+                id: 'tamagotchi_2025',
+                name: 'Tamagotchi 2025',
+                image: 'https://static.tildacdn.one/tild3266-6534-4632-b232-613231386336/GiftsGiftsGifts_AgAD.png',
+                basePrice: 50
+            },
+            {
+                id: 'halloween_cat_pink',
+                name: 'The Halloween Cat Pink',
+                image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbv9nbSYdKuuuQqiLu3M5Sw41BCLbpbiHBtClodQX4eg&s=10',
+                basePrice: 5000,
+                specialClass: 'pink-item'
+            }
+        ];
+
+        // УЛУЧШЕННАЯ СИСТЕМА ТРЕЙДИНГА
+        let activeTrades = [];
+        let tradeHistory = [];
+        let tradeIdCounter = 1;
+        let selectedGiftOfferId = null;
+        let selectedGiftRequestId = null;
+        let currentTradingLayer = 'active';
+
+        const tradingBots = [
+            { id: 'bot1', name: 'TradeBot', rating: 4.8, avatar: '🤖', fairness: 0.85, greed: 0.3 },
+            { id: 'bot2', name: 'StarTrader', rating: 4.5, avatar: '⭐', fairness: 0.8, greed: 0.4 },
+            { id: 'bot3', name: 'TONMaster', rating: 4.7, avatar: '👑', fairness: 0.9, greed: 0.2 },
+            { id: 'bot4', name: 'CyberDealer', rating: 4.6, avatar: '🤖', fairness: 0.75, greed: 0.5 },
+            { id: 'bot5', name: 'MarketKing', rating: 4.9, avatar: '🤴', fairness: 0.95, greed: 0.1 }
+        ];
+
+        // ЭЛЕМЕНТЫ DOM
+        const starsCounter = document.getElementById('starsCounter');
+        const tonCounter = document.getElementById('tonCounter');
+        const exchangeRateEl = document.getElementById('exchangeRate');
+        const starsToExchangeEl = document.getElementById('starsToExchange');
+        const exchangeBtn = document.getElementById('exchangeBtn');
+        const exchangeBtnTop = document.getElementById('exchangeBtnTop');
+        const promoBtnTop = document.getElementById('promoBtnTop');
+        const shopBtnTop = document.getElementById('shopBtnTop');
+        const inventoryBtnTop = document.getElementById('inventoryBtnTop');
+        const tonResultEl = document.getElementById('tonResult');
+        const exchangeModal = document.getElementById('exchangeModal');
+        const promoModal = document.getElementById('promoModal');
+        const shopModal = document.getElementById('shopModal');
+        const inventoryModal = document.getElementById('inventoryModal');
+        const closeExchangeModal = document.getElementById('closeExchangeModal');
+        const closePromoModal = document.getElementById('closePromoModal');
+        const closeShopModal = document.getElementById('closeShopModal');
+        const closeInventoryModal = document.getElementById('closeInventoryModal');
+        const mainStar = document.getElementById('mainStar');
+        const clickArea = document.getElementById('clickArea');
+        const particles = document.getElementById('particles');
+        const quickAmountButtons = document.querySelectorAll('.quick-amount-btn');
+        const inputHint = document.getElementById('inputHint');
+        const rateChangeIndicator = document.getElementById('rateChangeIndicator');
+        const rateContainer = document.getElementById('rateContainer');
+        
+        const clickUpgradeElement = document.getElementById('clickUpgrade');
+        const clickLevelElement = document.getElementById('clickLevel');
+        const clickCostElement = document.getElementById('clickCost');
+        const clickPowerDisplay = document.getElementById('clickPowerDisplay');
+        
+        // Элементы промокодов
+        const promoCodeInput = document.getElementById('promoCodeInput');
+        const activatePromoBtn = document.getElementById('activatePromoBtn');
+
+        // Элементы магазина и инвентаря
+        const shopItemsContainer = document.getElementById('shopItemsContainer');
+        const inventoryItemsContainer = document.getElementById('inventoryItemsContainer');
+        const emptyInventoryMessage = document.getElementById('emptyInventoryMessage');
+
+        // ЭЛЕМЕНТЫ ТРЕЙДИНГА
+        const tradingBtnTop = document.getElementById('tradingBtnTop');
+        const tradingModal = document.getElementById('tradingModal');
+        const closeTradingModal = document.getElementById('closeTradingModal');
+        const tradesContainer = document.getElementById('tradesContainer');
+        const resourceSelectBtns = document.querySelectorAll('.resource-select-btn');
+        const tradeAmountInput = document.getElementById('tradeAmount');
+        const createTradeBtn = document.getElementById('createTradeBtn');
+        const starsTradeBalance = document.getElementById('starsTradeBalance');
+        const tonTradeBalance = document.getElementById('tonTradeBalance');
+        const giftOfferSelection = document.getElementById('giftOfferSelection');
+        const giftRequestSelection = document.getElementById('giftRequestSelection');
+        const tradeAmountHint = document.getElementById('tradeAmountHint');
+        const tradingTabs = document.querySelectorAll('.trading-tab');
+        const tradingLayers = document.querySelectorAll('.trading-layer');
+        const historyContainer = document.getElementById('historyContainer');
+
+        // ФУНКЦИИ ТРЕЙДИНГА С СЛОЯМИ
+        function openTradingModal() {
+            tradingModal.style.display = 'flex';
+            tradingBtnTop.textContent = '✕ ЗАКРЫТЬ';
+            tradingBtnTop.style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
+            
+            updateTradeBalances();
+            switchTradingLayer('active');
+            renderTrades();
+            renderHistory();
+            renderGiftSelections();
+            updateCreateTradeButton();
+            
+            setTimeout(() => {
+                tradingModal.classList.add('active');
+            }, 10);
+        }
+
+        function closeTradingModalFunc() {
+            tradingModal.classList.add('closing');
+            tradingModal.classList.remove('active');
+            
+            tradingBtnTop.textContent = '🤝 ТРЕЙДИНГ';
+            tradingBtnTop.style.background = 'linear-gradient(135deg, #9C27B0, #7B1FA2)';
+            
+            setTimeout(() => {
+                tradingModal.classList.remove('closing');
+                tradingModal.style.display = 'none';
+            }, 300);
+        }
+
+        function switchTradingLayer(layerName) {
+            // Обновляем активную вкладку
+            tradingTabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.layer === layerName) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Обновляем активный слой
+            tradingLayers.forEach(layer => {
+                layer.classList.remove('active');
+                if (layer.id === layerName + 'TradesLayer' || 
+                    layer.id === layerName + 'TradeLayer' || 
+                    layer.id === layerName + 'Layer') {
+                    layer.classList.add('active');
+                }
+            });
+            
+            currentTradingLayer = layerName;
+        }
+
+        function getSelectedResources() {
+            const offerBtn = document.querySelector('#offerSelection .resource-select-btn.active');
+            const requestBtn = document.querySelector('#requestSelection .resource-select-btn.active');
+            
+            if (!offerBtn || !requestBtn) {
+                return { offerType: 'stars', requestType: 'ton' };
+            }
+            
+            return {
+                offerType: offerBtn.dataset.type,
+                requestType: requestBtn.dataset.type
+            };
+        }
+
+        function renderGiftSelections() {
+            // Очищаем контейнеры
+            giftOfferSelection.innerHTML = '';
+            giftRequestSelection.innerHTML = '';
+            
+            // Получаем список подарков из инвентаря
+            const inventoryItems = Object.values(inventory);
+            
+            if (inventoryItems.length === 0) {
+                giftOfferSelection.innerHTML = '<div class="no-trades" style="padding: 10px; font-size: 0.8rem;">🎁 В инвентаре нет подарков</div>';
+                giftRequestSelection.innerHTML = '<div class="no-trades" style="padding: 10px; font-size: 0.8rem;">🎁 В инвентаре нет подарков</div>';
+                return;
+            }
+            
+            // Рендерим подарки для предложения
+            inventoryItems.forEach(item => {
+                if (item.quantity > 0) {
+                    const giftItem = document.createElement('div');
+                    giftItem.className = 'gift-select-item';
+                    giftItem.dataset.id = item.id;
+                    giftItem.innerHTML = `
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="gift-select-name">${item.name}</div>
+                        <div class="gift-quantity">${item.quantity} шт</div>
+                    `;
+                    
+                    giftItem.addEventListener('click', () => {
+                        document.querySelectorAll('#giftOfferSelection .gift-select-item').forEach(el => {
+                            el.classList.remove('active');
+                        });
+                        giftItem.classList.add('active');
+                        selectedGiftOfferId = item.id;
+                        updateCreateTradeButton();
+                    });
+                    
+                    giftOfferSelection.appendChild(giftItem);
+                }
+            });
+            
+            // Рендерим все подарки для запроса (можно выбрать любой подарок)
+            shopItems.forEach(item => {
+                const giftItemRequest = document.createElement('div');
+                giftItemRequest.className = 'gift-select-item';
+                giftItemRequest.dataset.id = item.id;
+                giftItemRequest.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="gift-select-name">${item.name}</div>
+                    <div class="gift-quantity">${item.currentPrice || item.basePrice} TON</div>
+                `;
+                
+                giftItemRequest.addEventListener('click', () => {
+                    document.querySelectorAll('#giftRequestSelection .gift-select-item').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    giftItemRequest.classList.add('active');
+                    selectedGiftRequestId = item.id;
+                    updateCreateTradeButton();
+                });
+                
+                giftRequestSelection.appendChild(giftItemRequest);
+            });
+        }
+
+        function updateGiftSelectionVisibility() {
+            const { offerType, requestType } = getSelectedResources();
+            
+            // Показываем/скрываем выбор подарков
+            giftOfferSelection.style.display = offerType === 'gift' ? 'block' : 'none';
+            giftRequestSelection.style.display = requestType === 'gift' ? 'block' : 'none';
+            
+            // Обновляем подсказку
+            if (offerType === 'gift') {
+                tradeAmountInput.style.display = 'none';
+                tradeAmountHint.textContent = 'Выберите подарок из списка';
+                tradeAmountHint.style.display = 'block';
+            } else {
+                tradeAmountInput.style.display = 'block';
+                tradeAmountHint.textContent = 'Минимум: 10';
+                tradeAmountHint.style.display = 'block';
+            }
+            
+            updateCreateTradeButton();
+        }
+
+        function updateCreateTradeButton() {
+            const { offerType, requestType } = getSelectedResources();
+            const amount = parseFloat(tradeAmountInput.value) || 0;
+            
+            // Проверяем возможность создания трейда
+            let canCreate = true;
+            let reason = '';
+            
+            if (offerType === requestType) {
+                canCreate = false;
+                reason = 'Нельзя обменивать одинаковые ресурсы';
+            } else if (offerType === 'stars' && amount < 10) {
+                canCreate = false;
+                reason = 'Минимум 10 звёзд';
+            } else if (offerType === 'ton' && amount < 1) {
+                canCreate = false;
+                reason = 'Минимум 1 TON';
+            } else if (offerType === 'stars' && amount > stars) {
+                canCreate = false;
+                reason = 'Недостаточно звёзд';
+            } else if (offerType === 'ton' && amount > ton) {
+                canCreate = false;
+                reason = 'Недостаточно TON';
+            } else if (offerType === 'gift' && !selectedGiftOfferId) {
+                canCreate = false;
+                reason = 'Выберите подарок для обмена';
+            } else if (offerType === 'gift' && (!inventory[selectedGiftOfferId] || inventory[selectedGiftOfferId].quantity < 1)) {
+                canCreate = false;
+                reason = 'Недостаточно подарков';
+            }
+            
+            createTradeBtn.disabled = !canCreate;
+            createTradeBtn.title = reason;
+        }
+
+        function calculateFairTradeValue(offerType, offerAmount, offerGiftId, requestType, bot) {
+            let fairValue = 0;
+            
+            if (offerType === 'stars' && requestType === 'ton') {
+                // Звёзды → TON
+                fairValue = offerAmount / exchangeRate;
+            } else if (offerType === 'ton' && requestType === 'stars') {
+                // TON → Звёзды
+                fairValue = offerAmount * exchangeRate;
+            } else if (offerType === 'gift' && requestType === 'stars') {
+                // Подарок → Звёзды
+                const gift = inventory[offerGiftId];
+                if (gift) {
+                    const giftValue = (gift.currentPrice || gift.basePrice) * exchangeRate;
+                    fairValue = giftValue * 2; // Подарок стоит в 2 раза больше в звёздах
+                }
+            } else if (offerType === 'gift' && requestType === 'ton') {
+                // Подарок → TON
+                const gift = inventory[offerGiftId];
+                if (gift) {
+                    fairValue = (gift.currentPrice || gift.basePrice) * 1.5; // Подарок стоит в 1.5 раза больше
+                }
+            } else if (offerType === 'stars' && requestType === 'gift') {
+                // Звёзды → Подарок
+                const randomGift = shopItems[Math.floor(Math.random() * shopItems.length)];
+                const giftValue = (randomGift.currentPrice || randomGift.basePrice) * exchangeRate;
+                fairValue = offerAmount / giftValue; // Сколько подарков можно купить
+            } else if (offerType === 'ton' && requestType === 'gift') {
+                // TON → Подарок
+                const randomGift = shopItems[Math.floor(Math.random() * shopItems.length)];
+                fairValue = offerAmount / (randomGift.currentPrice || randomGift.basePrice);
+            } else if (offerType === 'gift' && requestType === 'gift') {
+                // Подарок → Подарок (обмен подарков)
+                const offerGift = inventory[offerGiftId];
+                if (offerGift) {
+                    // Бот оценивает подарок и предлагает другой
+                    const giftValue = (offerGift.currentPrice || offerGift.basePrice);
+                    // Бот может предложить подарок сопоставимой стоимости
+                    fairValue = giftValue;
+                }
+            }
+            
+            // Добавляем случайность в зависимости от жадности бота
+            const botModifier = 0.8 + (bot.greed * 0.4); // 0.8-1.2
+            fairValue = fairValue * botModifier;
+            
+            return Math.round(fairValue * 100) / 100;
+        }
+
+        function createTrade() {
+            const { offerType, requestType } = getSelectedResources();
+            const amount = parseFloat(tradeAmountInput.value) || 0;
+            
+            // Проверяем возможность
+            if (offerType === 'gift' && !selectedGiftOfferId) {
+                showMessage('Выберите подарок для обмена', 'error');
+                return;
+            }
+            
+            // Выбираем случайного бота
+            const bot = tradingBots[Math.floor(Math.random() * tradingBots.length)];
+            
+            // Рассчитываем предложение бота
+            let requestAmount = calculateFairTradeValue(
+                offerType, 
+                amount, 
+                selectedGiftOfferId, 
+                requestType, 
+                bot
+            );
+            
+            // Убеждаемся, что предложение не слишком маленькое
+            if (requestType !== 'gift') {
+                if (requestAmount < 1) requestAmount = 1;
+                requestAmount = Math.round(requestAmount);
+            }
+            
+            // Определяем ID запрашиваемого подарка
+            let requestGiftId = null;
+            if (requestType === 'gift') {
+                // Бот выбирает случайный подарок
+                const randomGift = shopItems[Math.floor(Math.random() * shopItems.length)];
+                requestGiftId = randomGift.id;
+                requestAmount = 1; // 1 подарок
+            }
+            
+            // Создаем трейд
+            const trade = {
+                id: tradeIdCounter++,
+                bot: bot,
+                offerType: offerType,
+                offerAmount: amount,
+                offerGiftId: offerType === 'gift' ? selectedGiftOfferId : null,
+                requestType: requestType,
+                requestAmount: requestAmount,
+                requestGiftId: requestGiftId,
+                status: 'active',
+                createdAt: Date.now(),
+                expiresAt: Date.now() + 5 * 60 * 1000, // 5 минут
+                botMessages: [],
+                lastBotMessage: null
+            };
+            
+            // Бот сразу оценивает предложение
+            const botResponse = evaluateTradeFromBot(trade);
+            trade.botMessages.push(botResponse);
+            trade.lastBotMessage = botResponse;
+            
+            activeTrades.push(trade);
+            
+            showMessage(`Трейд создан! ${bot.name} оценивает предложение...`, 'success');
+            
+            switchTradingLayer('active');
+            renderTrades();
+            tradeAmountInput.value = '100';
+            selectedGiftOfferId = null;
+            selectedGiftRequestId = null;
+            updateCreateTradeButton();
+            saveTradingData();
+        }
+
+        function evaluateTradeFromBot(trade) {
+            const bot = trade.bot;
+            const fairValue = calculateFairTradeValue(
+                trade.offerType,
+                trade.offerAmount,
+                trade.offerGiftId,
+                trade.requestType,
+                bot
+            );
+            
+            // Сравниваем предложение с справедливой ценой
+            const fairnessRatio = trade.requestAmount / fairValue;
+            
+            if (fairnessRatio >= 1.0) {
+                // Выгодное предложение для бота
+                return {
+                    type: 'success',
+                    text: `"Отличное предложение! Я готов принять сделку."`,
+                    action: 'accept'
+                };
+            } else if (fairnessRatio >= 0.7) {
+                // Нормальное предложение
+                return {
+                    type: 'warning',
+                    text: `"Неплохо, но я мог бы получить больше. Добавь немного, и договоримся!"`,
+                    action: 'request_more'
+                };
+            } else {
+                // Невыгодное предложение
+                return {
+                    type: 'warning',
+                    text: `"Слишком мало! Добавь ещё ${Math.round((fairValue - trade.requestAmount) * 100) / 100} ${trade.requestType === 'stars' ? 'звёзд' : 'TON'}, и я подумаю."`,
+                    action: 'request_more'
+                };
+            }
+        }
+
+        function renderTrades() {
+            tradesContainer.innerHTML = '';
+            
+            // Удаляем просроченные трейды
+            const now = Date.now();
+            const expiredTrades = activeTrades.filter(trade => trade.expiresAt <= now);
+            expiredTrades.forEach(trade => {
+                trade.status = 'expired';
+                tradeHistory.push({...trade});
+            });
+            activeTrades = activeTrades.filter(trade => trade.expiresAt > now);
+            
+            if (activeTrades.length === 0) {
+                tradesContainer.innerHTML = '<div class="no-trades">🤝 Нет активных трейдов. Создайте первый!</div>';
+                return;
+            }
+            
+            activeTrades.forEach(trade => {
+                const tradeElement = document.createElement('div');
+                tradeElement.className = 'trade-item';
+                tradeElement.dataset.id = trade.id;
+                
+                // Получаем информацию о подарках если есть
+                let offerName = '';
+                let offerImage = '';
+                let requestName = '';
+                let requestImage = '';
+                
+                if (trade.offerType === 'gift' && trade.offerGiftId) {
+                    if (inventory[trade.offerGiftId]) {
+                        const gift = inventory[trade.offerGiftId];
+                        offerName = gift.name;
+                        offerImage = gift.image;
+                    } else if (shopItems.find(g => g.id === trade.offerGiftId)) {
+                        const gift = shopItems.find(g => g.id === trade.offerGiftId);
+                        offerName = gift.name;
+                        offerImage = gift.image;
+                    }
+                }
+                
+                if (trade.requestType === 'gift' && trade.requestGiftId) {
+                    const gift = shopItems.find(g => g.id === trade.requestGiftId);
+                    if (gift) {
+                        requestName = gift.name;
+                        requestImage = gift.image;
+                    }
+                }
+                
+                tradeElement.innerHTML = `
+                    <div class="trade-bot">
+                        <div class="bot-avatar">${trade.bot.avatar}</div>
+                        <div class="bot-info">
+                            <div class="bot-name">${trade.bot.name}</div>
+                            <div class="bot-rating">★ ${trade.bot.rating}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="trade-offer">
+                        <div class="trade-side">
+                            <div class="trade-label">ВЫ ОТДАЁТЕ</div>
+                            <div class="trade-resource ${trade.offerType === 'ton' ? 'ton' : trade.offerType === 'gift' ? 'gift' : ''}">
+                                ${trade.offerType === 'gift' && offerImage ? 
+                                    `<img src="${offerImage}" class="trade-resource-icon" alt="${offerName}">` :
+                                    `<img src="${trade.offerType === 'stars' ? 
+                                        'https://nztcdn.com/files/6514f1e6-dab4-4d49-806a-3ff22d7793e5.webp' : 
+                                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrViWg0D72Yqmv2P4r2vO7arNp_IoIofGKyw&usqp=CAU'}" 
+                                         class="trade-resource-icon ${trade.offerType === 'ton' ? 'ton-icon-fixed' : ''}" 
+                                         alt="${trade.offerType === 'stars' ? '★' : 'TON'}">`
+                                }
+                                <div class="trade-resource-amount">
+                                    ${formatNumber(trade.offerAmount)} ${trade.offerType === 'stars' ? 'звёзд' : trade.offerType === 'ton' ? 'TON' : ''}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="trade-arrow">⇄</div>
+                        
+                        <div class="trade-side">
+                            <div class="trade-label">ВЫ ПОЛУЧАЕТЕ</div>
+                            <div class="trade-resource ${trade.requestType === 'ton' ? 'ton' : trade.requestType === 'gift' ? 'gift' : ''}">
+                                ${trade.requestType === 'gift' && requestImage ? 
+                                    `<img src="${requestImage}" class="trade-resource-icon" alt="${requestName}">` :
+                                    `<img src="${trade.requestType === 'stars' ? 
+                                        'https://nztcdn.com/files/6514f1e6-dab4-4d49-806a-3ff22d7793e5.webp' : 
+                                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrViWg0D72Yqmv2P4r2vO7arNp_IoIofGKyw&usqp=CAU'}" 
+                                         class="trade-resource-icon ${trade.requestType === 'ton' ? 'ton-icon-fixed' : ''}" 
+                                         alt="${trade.requestType === 'stars' ? '★' : 'TON'}">`
+                                }
+                                <div class="trade-resource-amount">
+                                    ${formatNumber(trade.requestAmount)} ${trade.requestType === 'stars' ? 'звёзд' : trade.requestType === 'ton' ? 'TON' : 'подарок'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${trade.lastBotMessage ? `
+                    <div class="bot-message ${trade.lastBotMessage.type}">
+                        <span>${trade.bot.name}: ${trade.lastBotMessage.text}</span>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="trade-actions">
+                        <button class="trade-btn reject" data-trade-id="${trade.id}">
+                            ❌ Отклонить
+                        </button>
+                        <button class="trade-btn add" data-trade-id="${trade.id}">
+                            ➕ Добавить
+                        </button>
+                        <button class="trade-btn accept" data-trade-id="${trade.id}">
+                            ✅ Принять
+                        </button>
+                    </div>
+                `;
+                
+                tradesContainer.appendChild(tradeElement);
+            });
+            
+            // Добавляем обработчики событий
+            document.querySelectorAll('.trade-btn.reject').forEach(btn => {
+                btn.addEventListener('click', () => rejectTrade(parseInt(btn.dataset.tradeId)));
+            });
+            
+            document.querySelectorAll('.trade-btn.add').forEach(btn => {
+                btn.addEventListener('click', () => addToTrade(parseInt(btn.dataset.tradeId)));
+            });
+            
+            document.querySelectorAll('.trade-btn.accept').forEach(btn => {
+                btn.addEventListener('click', () => acceptTrade(parseInt(btn.dataset.tradeId)));
+            });
+        }
+
+        function rejectTrade(tradeId) {
+            const tradeIndex = activeTrades.findIndex(t => t.id === tradeId);
+            if (tradeIndex === -1) return;
+            
+            const trade = activeTrades[tradeIndex];
+            trade.status = 'rejected';
+            trade.completedAt = Date.now();
+            tradeHistory.push({...trade});
+            activeTrades.splice(tradeIndex, 1);
+            
+            showMessage('Трейд отклонён', 'success');
+            
+            renderTrades();
+            renderHistory();
+            saveTradingData();
+        }
+
+        function addToTrade(tradeId) {
+            const tradeIndex = activeTrades.findIndex(t => t.id === tradeId);
+            if (tradeIndex === -1) return;
+            
+            const trade = activeTrades[tradeIndex];
+            
+            // Увеличиваем предложение на 10-30%
+            const additionalMultiplier = 1.1 + Math.random() * 0.2;
+            trade.offerAmount = Math.round(trade.offerAmount * additionalMultiplier);
+            
+            // Бот переоценивает сделку
+            const botResponse = evaluateTradeFromBot(trade);
+            trade.botMessages.push(botResponse);
+            trade.lastBotMessage = botResponse;
+            
+            showMessage(`Вы добавили больше ресурсов к сделке`, 'success');
+            
+            renderTrades();
+            saveTradingData();
+        }
+
+        function acceptTrade(tradeId) {
+            const tradeIndex = activeTrades.findIndex(t => t.id === tradeId);
+            if (tradeIndex === -1) return;
+            
+            const trade = activeTrades[tradeIndex];
+            
+            // Проверяем баланс
+            if (trade.offerType === 'stars' && trade.offerAmount > stars) {
+                showMessage('Недостаточно звёзд для сделки', 'error');
+                return;
+            }
+            
+            if (trade.offerType === 'ton' && trade.offerAmount > ton) {
+                showMessage('Недостаточно TON для сделки', 'error');
+                return;
+            }
+            
+            if (trade.offerType === 'gift' && trade.offerGiftId) {
+                const gift = inventory[trade.offerGiftId];
+                if (!gift || gift.quantity < 1) {
+                    showMessage('Недостаточно подарков для сделки', 'error');
+                    return;
+                }
+            }
+            
+            // Бот принимает решение на основе последнего сообщения
+            let botDecision = false;
+            if (trade.lastBotMessage) {
+                if (trade.lastBotMessage.action === 'accept') {
+                    botDecision = Math.random() < trade.bot.fairness;
+                } else if (trade.lastBotMessage.action === 'request_more') {
+                    // Шанс меньше, если бот просил добавить
+                    botDecision = Math.random() < (trade.bot.fairness * 0.7);
+                }
+            } else {
+                botDecision = Math.random() < trade.bot.fairness;
+            }
+            
+            if (botDecision) {
+                // Выполняем обмен
+                if (trade.offerType === 'stars') {
+                    stars -= trade.offerAmount;
+                } else if (trade.offerType === 'ton') {
+                    ton -= trade.offerAmount;
+                } else if (trade.offerType === 'gift' && trade.offerGiftId) {
+                    inventory[trade.offerGiftId].quantity--;
+                    if (inventory[trade.offerGiftId].quantity <= 0) {
+                        delete inventory[trade.offerGiftId];
+                    }
+                }
+                
+                if (trade.requestType === 'stars') {
+                    stars += trade.requestAmount;
+                } else if (trade.requestType === 'ton') {
+                    ton += trade.requestAmount;
+                } else if (trade.requestType === 'gift' && trade.requestGiftId) {
+                    const gift = shopItems.find(g => g.id === trade.requestGiftId);
+                    if (gift) {
+                        if (!inventory[gift.id]) {
+                            inventory[gift.id] = {
+                                ...gift,
+                                quantity: 1,
+                                buyPrice: gift.basePrice
+                            };
+                        } else {
+                            inventory[gift.id].quantity++;
+                        }
+                    }
+                }
+                
+                trade.status = 'completed';
+                showMessage(`✅ ${trade.bot.name} принял сделку!`, 'success');
+                
+                // Создаем частицы
+                createParticles(8, trade.requestType === 'stars' ? 'star' : 'ton');
+            } else {
+                // Бот отказывается
+                trade.status = 'rejected';
+                trade.botMessages.push({
+                    type: 'warning',
+                    text: `"Извини, передумал. Не выгодно."`,
+                    action: 'reject'
+                });
+                trade.lastBotMessage = trade.botMessages[trade.botMessages.length - 1];
+                showMessage(`❌ ${trade.bot.name} отказался от сделки`, 'error');
+            }
+            
+            trade.completedAt = Date.now();
+            tradeHistory.push({...trade});
+            activeTrades.splice(tradeIndex, 1);
+            
+            updateDisplay();
+            renderTrades();
+            renderHistory();
+            renderInventory();
+            saveGame();
+            saveTradingData();
+        }
+
+        function renderHistory() {
+            historyContainer.innerHTML = '';
+            
+            const recentHistory = tradeHistory.slice(-10).reverse(); // Последние 10 трейдов
+            
+            if (recentHistory.length === 0) {
+                historyContainer.innerHTML = '<div class="no-trades">📊 История трейдов пуста</div>';
+                return;
+            }
+            
+            recentHistory.forEach(trade => {
+                const historyElement = document.createElement('div');
+                historyElement.className = 'trade-item';
+                
+                let offerName = '';
+                let requestName = '';
+                
+                if (trade.offerType === 'gift' && trade.offerGiftId) {
+                    const gift = shopItems.find(g => g.id === trade.offerGiftId) || 
+                                (inventory[trade.offerGiftId] ? {name: inventory[trade.offerGiftId].name} : {name: 'Подарок'});
+                    offerName = gift.name;
+                }
+                
+                if (trade.requestType === 'gift' && trade.requestGiftId) {
+                    const gift = shopItems.find(g => g.id === trade.requestGiftId);
+                    requestName = gift ? gift.name : 'Подарок';
+                }
+                
+                const statusIcon = trade.status === 'completed' ? '✅' : 
+                                 trade.status === 'rejected' ? '❌' : 
+                                 trade.status === 'expired' ? '⏰' : '❓';
+                
+                historyElement.innerHTML = `
+                    <div class="trade-bot">
+                        <div class="bot-avatar">${trade.bot.avatar}</div>
+                        <div class="bot-info">
+                            <div class="bot-name">${trade.bot.name}</div>
+                            <div class="bot-rating">${statusIcon} ${trade.status === 'completed' ? 'Успешно' : 
+                                                       trade.status === 'rejected' ? 'Отклонено' : 
+                                                       trade.status === 'expired' ? 'Просрочено' : 'Неизвестно'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="trade-offer">
+                        <div class="trade-side">
+                            <div class="trade-label">ОТДАЛИ</div>
+                            <div class="trade-resource ${trade.offerType === 'ton' ? 'ton' : trade.offerType === 'gift' ? 'gift' : ''}">
+                                <div class="trade-resource-amount">
+                                    ${formatNumber(trade.offerAmount)} ${trade.offerType === 'stars' ? 'звёзд' : 
+                                                                          trade.offerType === 'ton' ? 'TON' : 
+                                                                          offerName}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="trade-arrow">⇄</div>
+                        
+                        <div class="trade-side">
+                            <div class="trade-label">ПОЛУЧИЛИ</div>
+                            <div class="trade-resource ${trade.requestType === 'ton' ? 'ton' : trade.requestType === 'gift' ? 'gift' : ''}">
+                                <div class="trade-resource-amount">
+                                    ${formatNumber(trade.requestAmount)} ${trade.requestType === 'stars' ? 'звёзд' : 
+                                                                           trade.requestType === 'ton' ? 'TON' : 
+                                                                           requestName}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                historyContainer.appendChild(historyElement);
+            });
+        }
+
+        // ИСПРАВЛЕННЫЕ ФУНКЦИИ
+        function updateUpgradeDisplay() {
+            if (clickLevel >= 5) {
+                clickLevelElement.textContent = "5 (МАКС)";
+                clickCostElement.textContent = "МАКС";
+                clickPowerDisplay.textContent = clickPower;
+                
+                clickUpgradeElement.classList.add('max-level');
+                clickUpgradeElement.classList.remove('disabled');
+                clickUpgradeElement.style.cursor = 'default';
+                
+                return;
+            }
+            
+            const nextLevel = upgradeLevels[clickLevel];
+            clickLevelElement.textContent = `${clickLevel}/5`;
+            clickCostElement.textContent = nextLevel.cost;
+            clickPowerDisplay.textContent = clickPower;
+            
+            if (stars >= nextLevel.cost) {
+                clickUpgradeElement.classList.remove('disabled');
+                clickUpgradeElement.style.opacity = '1';
+                clickUpgradeElement.style.cursor = 'pointer';
+            } else {
+                clickUpgradeElement.classList.add('disabled');
+                clickUpgradeElement.style.opacity = '0.7';
+                clickUpgradeElement.style.cursor = 'not-allowed';
+            }
+        }
+
+        function updateCPS() {
+            const now = Date.now();
+            clickTimes = clickTimes.filter(time => now - time < 1000);
+            cps = clickTimes.length;
+        }
+
+        // Инициализация античита
+        if (!window.antiAutoClick.init()) {
+            window.antiAutoClick.showPermanentBan();
+        }
+
+        // ФУНКЦИИ ИГРЫ
+        function saveGame() {
+            const gameData = {
+                stars: parseFloat(stars) || 0,
+                ton: parseFloat(ton) || 0,
+                totalClicks: parseInt(totalClicks) || 0,
+                exchangeRate: parseInt(exchangeRate) || 200,
+                sessionCount: parseInt(sessionCount) || 0,
+                clickPower: parseInt(clickPower) || 1,
+                clickLevel: parseInt(clickLevel) || 0,
+                saveTime: Date.now()
+            };
+            localStorage.setItem('telegramStarGame', JSON.stringify(gameData));
+            localStorage.setItem('usedPromoCodes', JSON.stringify(usedPromoCodes));
+            localStorage.setItem('inventory', JSON.stringify(inventory));
+            saveTradingData();
+        }
+
+        function saveTradingData() {
+            const tradingData = {
+                activeTrades,
+                tradeHistory,
+                tradeIdCounter,
+                saveTime: Date.now()
+            };
+            localStorage.setItem('tradingData', JSON.stringify(tradingData));
+        }
+
+        function loadGame() {
+            // Загрузка данных античита
+            const savedAntiCheat = localStorage.getItem('gameAntiCheatDB');
+            if (savedAntiCheat) {
+                try {
+                    window.db = JSON.parse(savedAntiCheat);
+                } catch (e) {
+                    window.db = {
+                        isBanned: false,
+                        warnings: 0,
+                        banReason: '',
+                        userId: 'user_' + Math.random().toString(36).substr(2, 9),
+                        usedUnbanCodes: []
+                    };
+                }
+            }
+            
+            // Загрузка игровых данных
+            const savedData = localStorage.getItem('telegramStarGame');
+            if (savedData) {
+                try {
+                    const gameData = JSON.parse(savedData);
+                    stars = parseFloat(gameData.stars) || 0;
+                    ton = parseFloat(gameData.ton) || 0;
+                    totalClicks = parseInt(gameData.totalClicks) || 0;
+                    exchangeRate = parseInt(gameData.exchangeRate) || 200;
+                    sessionCount = parseInt(gameData.sessionCount) || 0;
+                    clickPower = parseInt(gameData.clickPower) || 1;
+                    clickLevel = parseInt(gameData.clickLevel) || 0;
+                    
+                    updateClickPowerFromLevel();
+                    sessionCount++;
+                    previousRate = exchangeRate;
+                } catch (e) {
+                    console.error('Ошибка загрузки игры:', e);
+                    resetGame();
+                }
+            } else {
+                resetGame();
+            }
+            
+            // Загрузка инвентаря
+            const savedInventory = localStorage.getItem('inventory');
+            if (savedInventory) {
+                try {
+                    inventory = JSON.parse(savedInventory);
+                } catch (e) {
+                    inventory = {};
+                }
+            }
+            
+            // Загрузка данных трейдинга
+            const savedTradingData = localStorage.getItem('tradingData');
+            if (savedTradingData) {
+                try {
+                    const tradingData = JSON.parse(savedTradingData);
+                    activeTrades = tradingData.activeTrades || [];
+                    tradeHistory = tradingData.tradeHistory || [];
+                    tradeIdCounter = tradingData.tradeIdCounter || 1;
+                } catch (e) {
+                    console.error('Ошибка загрузки данных трейдинга:', e);
+                }
+            }
+            
+            updateDisplay();
+            updateUpgradeDisplay();
+            updateShopPrices();
+            renderShopItems();
+            renderInventory();
+            updateTradeBalances();
+            renderHistory();
+        }
+
+        function resetGame() {
+            stars = 0;
+            ton = 0;
+            totalClicks = 0;
+            exchangeRate = 200;
+            sessionCount = 1;
+            previousRate = 200;
+            clickPower = 1;
+            clickLevel = 0;
+            inventory = {};
+            activeTrades = [];
+            tradeHistory = [];
+            tradeIdCounter = 1;
+        }
+
+        function updateClickPowerFromLevel() {
+            if (clickLevel === 0) {
+                clickPower = 1;
+            } else if (clickLevel >= 1 && clickLevel <= 5) {
+                clickPower = upgradeLevels[clickLevel - 1].power;
+            }
+        }
+
+        function formatNumber(num) {
+            const n = parseFloat(num) || 0;
+            if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+            if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+            if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+            return Math.floor(n);
+        }
+
+        function updateDisplay() {
+            starsCounter.textContent = formatNumber(stars);
+            tonCounter.textContent = formatNumber(ton);
+            exchangeRateEl.textContent = exchangeRate;
+            updateExchangePreview();
+            updateTradeBalances();
+        }
+
+        function updateTradeBalances() {
+            starsTradeBalance.textContent = formatNumber(stars);
+            tonTradeBalance.textContent = formatNumber(ton);
+        }
+
+        function showMessage(message, type) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `promo-message promo-${type}`;
+            messageEl.textContent = message;
+            messageEl.style.cssText = `
+                position: fixed;
+                top: 100px;
+                left: 50%;
+                transform: translateX(-50%) translateY(-20px);
+                background: ${type === 'success' ? 'linear-gradient(135deg, rgba(0, 200, 83, 0.9), rgba(0, 150, 63, 0.9))' : 'linear-gradient(135deg, rgba(244, 67, 54, 0.9), rgba(183, 28, 28, 0.9))'};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                font-weight: 600;
+                z-index: 3000;
+                opacity: 0;
+                transition: all 0.3s ease;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            `;
+            
+            document.body.appendChild(messageEl);
+            
+            setTimeout(() => {
+                messageEl.style.opacity = '1';
+                messageEl.style.transform = 'translateX(-50%) translateY(0)';
+            }, 10);
+            
+            setTimeout(() => {
+                messageEl.style.opacity = '0';
+                messageEl.style.transform = 'translateX(-50%) translateY(-20px)';
+                setTimeout(() => messageEl.remove(), 300);
+            }, 3000);
+        }
+
+        // ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ ИГРЫ
+        function updateShopPrices() {
+            const priceMultiplier = 1 + (200 - exchangeRate) / 1000;
+            
+            shopItems.forEach(item => {
+                item.currentPrice = Math.round(item.basePrice * priceMultiplier);
+            });
+        }
+
+        function renderShopItems() {
+            shopItemsContainer.innerHTML = '';
+            
+            shopItems.forEach(item => {
+                const shopItem = document.createElement('div');
+                shopItem.className = 'shop-item';
+                shopItem.dataset.id = item.id;
+                shopItem.dataset.price = item.currentPrice;
+                
+                const imageClass = item.specialClass || '';
+                const containerClass = 'item-image';
+                
+                shopItem.innerHTML = `
+                    <div class="${containerClass}">
+                        <img src="${item.image}" alt="${item.name}" class="${imageClass}">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-price">${formatNumber(item.currentPrice)} TON</div>
+                    </div>
+                    <button class="buy-btn" ${ton < item.currentPrice ? 'disabled' : ''}>
+                        КУПИТЬ
+                    </button>
+                `;
+                
+                const buyBtn = shopItem.querySelector('.buy-btn');
+                buyBtn.addEventListener('click', () => buyItem(item.id));
+                
+                shopItemsContainer.appendChild(shopItem);
+            });
+            
+            updateShopButtons();
+        }
+
+        function updateShopButtons() {
+            document.querySelectorAll('.shop-item').forEach(shopItem => {
+                const itemId = shopItem.dataset.id;
+                const itemPrice = parseInt(shopItem.dataset.price) || 0;
+                const buyBtn = shopItem.querySelector('.buy-btn');
+                
+                if (ton < itemPrice) {
+                    buyBtn.disabled = true;
+                    buyBtn.style.opacity = '0.5';
+                } else {
+                    buyBtn.disabled = false;
+                    buyBtn.style.opacity = '1';
+                }
+            });
+        }
+
+        function buyItem(itemId) {
+            const item = shopItems.find(i => i.id === itemId);
+            
+            if (!item) return;
+            
+            const price = item.currentPrice || item.basePrice;
+            
+            if (ton < price) {
+                showMessage('Недостаточно TON для покупки', 'error');
+                return;
+            }
+            
+            ton = parseFloat(ton) - parseFloat(price);
+            
+            if (!inventory[itemId]) {
+                inventory[itemId] = {
+                    ...item,
+                    quantity: 1,
+                    buyPrice: price
+                };
+            } else {
+                inventory[itemId].quantity = (inventory[itemId].quantity || 0) + 1;
+            }
+            
+            showMessage(`Куплен ${item.name} за ${formatNumber(price)} TON`, 'success');
+            
+            updateDisplay();
+            updateShopButtons();
+            renderInventory();
+            saveGame();
+            
+            createParticles(5, 'star');
+        }
+
+        function renderInventory() {
+            inventoryItemsContainer.innerHTML = '';
+            
+            const inventoryItems = Object.values(inventory);
+            
+            if (inventoryItems.length === 0) {
+                emptyInventoryMessage.style.display = 'block';
+                return;
+            }
+            
+            emptyInventoryMessage.style.display = 'none';
+            
+            inventoryItems.forEach(item => {
+                const inventoryItem = document.createElement('div');
+                inventoryItem.className = 'inventory-item';
+                inventoryItem.dataset.id = item.id;
+                
+                const sellPrice = Math.round((item.currentPrice || item.basePrice) * 0.7);
+                
+                const imageClass = item.specialClass || '';
+                const containerClass = 'item-image';
+                
+                inventoryItem.innerHTML = `
+                    <div class="item-quantity">${item.quantity || 1}</div>
+                    <div class="${containerClass}">
+                        <img src="${item.image}" alt="${item.name}" class="${imageClass}">
+                    </div>
+                    <div class="item-info">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-sell-price">Продажа: ${formatNumber(sellPrice)} TON</div>
+                    </div>
+                    <button class="sell-btn">
+                        ПРОДАТЬ
+                    </button>
+                `;
+                
+                const sellBtn = inventoryItem.querySelector('.sell-btn');
+                sellBtn.addEventListener('click', () => sellItem(item.id));
+                
+                inventoryItemsContainer.appendChild(inventoryItem);
+            });
+        }
+
+        function sellItem(itemId) {
+            if (!inventory[itemId] || (inventory[itemId].quantity || 0) <= 0) return;
+            
+            const item = inventory[itemId];
+            const sellPrice = Math.round((item.currentPrice || item.basePrice) * 0.7);
+            
+            item.quantity = (item.quantity || 1) - 1;
+            ton = parseFloat(ton) + parseFloat(sellPrice);
+            
+            if (item.quantity <= 0) {
+                delete inventory[itemId];
+            }
+            
+            showMessage(`Продан ${item.name} за ${formatNumber(sellPrice)} TON`, 'success');
+            
+            updateDisplay();
+            renderInventory();
+            saveGame();
+            
+            createParticles(3, 'ton');
+        }
+
+        function buyClickUpgrade() {
+            if (clickLevel >= 5) {
+                showMessage('Вы достигли максимального уровня!', 'success');
+                return;
+            }
+            
+            const nextLevel = upgradeLevels[clickLevel];
+            
+            if (stars < nextLevel.cost) {
+                showMessage('Недостаточно звёзд для улучшения!', 'error');
+                clickUpgradeElement.style.background = 'linear-gradient(135deg, rgba(244, 67, 54, 0.15), rgba(183, 28, 28, 0.15))';
+                setTimeout(() => {
+                    clickUpgradeElement.style.background = '';
+                }, 500);
+                return;
+            }
+            
+            stars = parseFloat(stars) - parseFloat(nextLevel.cost);
+            clickLevel++;
+            clickPower = nextLevel.power;
+            
+            showMessage(`Улучшение куплено! Теперь получаете ${clickPower} звёзд за клик!`, 'success');
+            
+            updateDisplay();
+            updateUpgradeDisplay();
+            saveGame();
+            
+            clickUpgradeElement.style.background = 'linear-gradient(135deg, rgba(0, 200, 83, 0.15), rgba(0, 150, 63, 0.15))';
+            setTimeout(() => {
+                clickUpgradeElement.style.background = '';
+            }, 500);
+            
+            createParticles(10, 'star');
+        }
+
+        function updateExchangePreview() {
+            if (starsToExchangeEl.value) {
+                const starsAmount = parseInt(starsToExchangeEl.value) || 0;
+                const tonAmount = starsAmount / exchangeRate;
+                tonResultEl.textContent = tonAmount.toFixed(4);
+                
+                quickAmountButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.amount === 'max' && starsAmount === stars) {
+                        btn.classList.add('active');
+                    } else if (btn.dataset.amount === String(starsAmount)) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                if (starsAmount < 100) {
+                    inputHint.textContent = `Минимум: 100 звёзд (недостаточно)`;
+                    inputHint.style.color = '#F44336';
+                } else if (starsAmount > stars) {
+                    inputHint.textContent = `Максимум: ${formatNumber(stars)} звёзд`;
+                    inputHint.style.color = '#F44336';
+                } else {
+                    inputHint.textContent = `Доступно: ${formatNumber(stars)} звёзд`;
+                    inputHint.style.color = '#8E9BAE';
+                }
+            } else {
+                tonResultEl.textContent = "0";
+                inputHint.textContent = `Доступно: ${formatNumber(stars)} звёзд`;
+                inputHint.style.color = '#8E9BAE';
+                quickAmountButtons.forEach(btn => btn.classList.remove('active'));
+            }
+            
+            const starsAmount = parseInt(starsToExchangeEl.value) || 0;
+            exchangeBtn.disabled = starsAmount < 100 || starsAmount > stars || !starsAmount;
+        }
+
+        function setExchangeAmount(amount) {
+            if (amount === 'max') {
+                starsToExchangeEl.value = stars;
+            } else {
+                starsToExchangeEl.value = amount;
+            }
+            
+            starsToExchangeEl.removeAttribute('readonly');
+            starsToExchangeEl.classList.remove('no-focus');
+            starsToExchangeEl.focus();
+            
+            updateExchangePreview();
+        }
+
+        function exchangeStars() {
+            const starsAmount = parseInt(starsToExchangeEl.value) || 0;
+            
+            if (starsAmount < 100) {
+                alert("Минимальная сумма обмена: 100 звёзд");
+                return;
+            }
+            
+            if (starsAmount > stars) {
+                alert("Недостаточно звёзд для обмена");
+                return;
+            }
+            
+            const tonAmount = starsAmount / exchangeRate;
+            
+            stars = parseFloat(stars) - parseFloat(starsAmount);
+            ton = parseFloat(ton) + parseFloat(tonAmount);
+            
+            const exchangeResult = document.querySelector('.exchange-result');
+            exchangeResult.style.background = 'linear-gradient(135deg, rgba(0, 200, 83, 0.15), rgba(0, 150, 63, 0.15))';
+            exchangeResult.style.borderColor = 'rgba(0, 200, 83, 0.3)';
+            
+            setTimeout(() => {
+                exchangeResult.style.background = 'rgba(0, 136, 204, 0.08)';
+                exchangeResult.style.borderColor = 'rgba(0, 136, 204, 0.15)';
+            }, 1000);
+            
+            starsToExchangeEl.value = '';
+            starsToExchangeEl.setAttribute('readonly', 'true');
+            starsToExchangeEl.classList.add('no-focus');
+            starsToExchangeEl.blur();
+            
+            createParticles(4, 'ton');
+            updateDisplay();
+            updateShopButtons();
+            saveGame();
+        }
+
+        function activatePromoCode() {
+            const code = promoCodeInput.value.trim().toUpperCase();
+            
+            if (!code) {
+                showMessage('Введите промокод', 'error');
+                return;
+            }
+            
+            if (usedPromoCodes[code]) {
+                showMessage('Этот промокод уже использован', 'error');
+                return;
+            }
+            
+            const promo = promoDatabase[code];
+            
+            if (!promo) {
+                showMessage('Неверный промокод', 'error');
+                return;
+            }
+            
+            stars = parseFloat(stars) + parseFloat(promo.stars || 0);
+            ton = parseFloat(ton) + parseFloat(promo.ton || 0);
+            usedPromoCodes[code] = true;
+            
+            saveGame();
+            updateDisplay();
+            updateShopButtons();
+            
+            const rewardText = `${promo.stars > 0 ? `+${formatNumber(promo.stars)} звёзд` : ''}${promo.stars > 0 && promo.ton > 0 ? ' и ' : ''}${promo.ton > 0 ? `+${formatNumber(promo.ton)} TON` : ''}`;
+            showMessage(`Промокод активирован! Получено: ${rewardText}`, 'success');
+            
+            promoCodeInput.value = '';
+            createParticles(15, 'star');
+            
+            if (promo.ton > 0) {
+                setTimeout(() => createParticles(8, 'ton'), 300);
+            }
+        }
+
+        function createParticles(count = 2, type = 'star') {
+            const rect = mainStar.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    const size = 8 + Math.random() * 10;
+                    
+                    particle.style.width = size + 'px';
+                    particle.style.height = size + 'px';
+                    particle.style.left = (x - size/2) + 'px';
+                    particle.style.top = (y - size/2) + 'px';
+                    particle.style.background = type === 'star' 
+                        ? 'radial-gradient(circle, #FFD700 0%, transparent 70%)'
+                        : 'radial-gradient(circle, #0088CC 0%, transparent 70%)';
+                    particle.style.borderRadius = '50%';
+                    particle.style.filter = type === 'star' 
+                        ? 'drop-shadow(0 0 4px rgba(255, 215, 0, 0.5))'
+                        : 'drop-shadow(0 0 4px rgba(0, 136, 204, 0.5))';
+                    
+                    particles.appendChild(particle);
+                    
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 20 + Math.random() * 30;
+                    const tx = Math.cos(angle) * distance;
+                    const ty = Math.sin(angle) * distance;
+                    
+                    particle.animate([
+                        { 
+                            transform: 'translate(0, 0) scale(1)', 
+                            opacity: 1
+                        },
+                        { 
+                            transform: `translate(${tx}px, ${ty}px) scale(0.5)`, 
+                            opacity: 0
+                        }
+                    ], {
+                        duration: 300 + Math.random() * 200,
+                        easing: 'cubic-bezier(0.2, 0, 0.8, 1)'
+                    }).onfinish = () => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    };
+                }, i * 30);
+            }
+        }
+
+        function handleClick(event) {
+            const rect = clickArea.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            if (!window.antiAutoClick.canClick(x, y)) {
+                return;
+            }
+            
+            stars = parseFloat(stars) + parseFloat(clickPower);
+            totalClicks = parseInt(totalClicks) + 1;
+            
+            const now = Date.now();
+            clickTimes.push(now);
+            
+            mainStar.style.transform = 'scale(0.95)';
+            setTimeout(() => mainStar.style.transform = 'scale(1)', 100);
+            
+            createParticles(2, 'star');
+            updateCPS();
+            updateDisplay();
+            updateUpgradeDisplay();
+            updateShopButtons();
+            
+            if (totalClicks % 10 === 0) {
+                saveGame();
+            }
+        }
+
+        function updateExchangeRate() {
+            previousRate = exchangeRate;
+            
+            const oldRate = exchangeRate;
+            let newRate;
+            
+            volatilityTimer++;
+            if (volatilityTimer >= 10) {
+                isRateVolatile = Math.random() > 0.7;
+                volatilityTimer = 0;
+            }
+            
+            if (sessionCount <= 1) {
+                newRate = Math.floor(100 + Math.random() * 151);
+            } else {
+                let change;
+                if (isRateVolatile) {
+                    change = (Math.random() - 0.5) * 100;
+                    if (Math.random() > 0.95) {
+                        change = Math.abs(change) * 2;
+                    }
+                } else {
+                    change = (Math.random() - 0.5) * 40;
+                }
+                
+                newRate = Math.floor(Math.max(50, Math.min(1000, oldRate + change)));
+            }
+            
+            exchangeRate = newRate;
+            
+            const change = exchangeRate - oldRate;
+            const changePercent = ((change / oldRate) * 100).toFixed(1);
+            
+            rateChangeIndicator.className = 'rate-change';
+            rateChangeIndicator.textContent = '';
+            
+            if (change > 0) {
+                rateChangeIndicator.classList.add('rate-up');
+                rateChangeIndicator.textContent = `+${changePercent}%`;
+                rateContainer.style.background = 'linear-gradient(135deg, rgba(0, 200, 83, 0.15), rgba(0, 150, 63, 0.15))';
+                rateContainer.style.borderColor = 'rgba(0, 200, 83, 0.3)';
+            } else if (change < 0) {
+                rateChangeIndicator.classList.add('rate-down');
+                rateChangeIndicator.textContent = `${changePercent}%`;
+                rateContainer.style.background = 'linear-gradient(135deg, rgba(244, 67, 54, 0.15), rgba(183, 28, 28, 0.15))';
+                rateContainer.style.borderColor = 'rgba(244, 67, 54, 0.3)';
+            } else {
+                rateChangeIndicator.classList.add('rate-stable');
+                rateChangeIndicator.textContent = '0%';
+                rateContainer.style.background = 'rgba(0, 136, 204, 0.1)';
+                rateContainer.style.borderColor = 'rgba(0, 136, 204, 0.2)';
+            }
+            
+            animateRateChange(oldRate, newRate);
+            
+            updateShopPrices();
+            renderShopItems();
+            updateExchangePreview();
+            saveGame();
+        }
+
+        function animateRateChange(oldRate, newRate) {
+            const duration = 1000;
+            const steps = 20;
+            const stepTime = duration / steps;
+            const rateDiff = newRate - oldRate;
+            const stepValue = rateDiff / steps;
+            
+            let currentStep = 0;
+            
+            const animation = setInterval(() => {
+                currentStep++;
+                const currentRate = Math.round(oldRate + (stepValue * currentStep));
+                
+                exchangeRateEl.textContent = currentRate;
+                exchangeRateEl.style.transform = 'scale(1.05)';
+                exchangeRateEl.style.color = rateDiff > 0 ? '#00C853' : rateDiff < 0 ? '#F44336' : '#0088CC';
+                
+                if (currentStep >= steps) {
+                    clearInterval(animation);
+                    exchangeRateEl.textContent = newRate;
+                    
+                    setTimeout(() => {
+                        exchangeRateEl.style.transform = 'scale(1)';
+                        exchangeRateEl.style.color = '#0088CC';
+                        
+                        setTimeout(() => {
+                            rateContainer.style.background = 'rgba(0, 136, 204, 0.1)';
+                            rateContainer.style.borderColor = 'rgba(0, 136, 204, 0.2)';
+                            rateChangeIndicator.className = 'rate-change';
+                            rateChangeIndicator.textContent = '';
+                        }, 1500);
+                    }, 100);
+                }
+            }, stepTime);
+        }
+
+        // ОБРАБОТЧИКИ СОБЫТИЙ
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGame();
+            
+            // Обработчики для вкладок трейдинга
+            tradingTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTradingLayer(this.dataset.layer);
+                });
+            });
+            
+            // Обработчики для выбора ресурсов в трейдинге
+            resourceSelectBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const parent = this.closest('.trade-resource-selection');
+                    parent.querySelectorAll('.resource-select-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    updateGiftSelectionVisibility();
+                });
+            });
+            
+            // Обработчик ввода количества
+            tradeAmountInput.addEventListener('input', updateCreateTradeButton);
+            
+            // Обработчик создания трейда
+            createTradeBtn.addEventListener('click', createTrade);
+            
+            // Обработчик открытия/закрытия трейдинга
+            tradingBtnTop.addEventListener('click', () => {
+                if (tradingModal.classList.contains('active')) {
+                    closeTradingModalFunc();
+                } else {
+                    openTradingModal();
+                }
+            });
+            
+            closeTradingModal.addEventListener('click', closeTradingModalFunc);
+            
+            // Обработчик закрытия по клику на фон
+            tradingModal.addEventListener('click', (e) => {
+                if (e.target === tradingModal) {
+                    closeTradingModalFunc();
+                }
+            });
+            
+            // Обработчики для улучшений
+            clickUpgradeElement.addEventListener('click', buyClickUpgrade);
+            
+            // Обработчики для основного клика
+            clickArea.addEventListener('click', handleClick);
+            
+            // Обработчики для обмена
+            exchangeBtnTop.addEventListener('click', () => {
+                if (exchangeModal.classList.contains('active')) {
+                    closeExchangeModalFunc();
+                } else {
+                    exchangeModal.style.display = 'flex';
+                    exchangeBtnTop.textContent = '✕ ЗАКРЫТЬ';
+                    exchangeBtnTop.style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
+                    setTimeout(() => exchangeModal.classList.add('active'), 10);
+                }
+            });
+            
+            closeExchangeModal.addEventListener('click', closeExchangeModalFunc);
+            
+            exchangeBtn.addEventListener('click', exchangeStars);
+            
+            starsToExchangeEl.addEventListener('input', updateExchangePreview);
+            
+            quickAmountButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    setExchangeAmount(button.dataset.amount);
+                });
+            });
+            
+            // Обработчики для промокодов
+            promoBtnTop.addEventListener('click', () => {
+                if (promoModal.classList.contains('active')) {
+                    closePromoModalFunc();
+                } else {
+                    promoModal.style.display = 'flex';
+                    promoBtnTop.textContent = '✕ ЗАКРЫТЬ';
+                    promoBtnTop.style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
+                    setTimeout(() => promoModal.classList.add('active'), 10);
+                }
+            });
+            
+            closePromoModal.addEventListener('click', closePromoModalFunc);
+            
+            activatePromoBtn.addEventListener('click', activatePromoCode);
+            promoCodeInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    activatePromoCode();
+                }
+            });
+            
+            // Обработчики для магазина
+            shopBtnTop.addEventListener('click', () => {
+                if (shopModal.classList.contains('active')) {
+                    closeShopModalFunc();
+                } else {
+                    shopModal.style.display = 'flex';
+                    shopBtnTop.textContent = '✕ ЗАКРЫТЬ';
+                    shopBtnTop.style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
+                    updateShopPrices();
+                    renderShopItems();
+                    setTimeout(() => shopModal.classList.add('active'), 10);
+                }
+            });
+            
+            closeShopModal.addEventListener('click', closeShopModalFunc);
+            
+            // Обработчики для инвентаря
+            inventoryBtnTop.addEventListener('click', () => {
+                if (inventoryModal.classList.contains('active')) {
+                    closeInventoryModalFunc();
+                } else {
+                    inventoryModal.style.display = 'flex';
+                    inventoryBtnTop.textContent = '✕ ЗАКРЫТЬ';
+                    inventoryBtnTop.style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
+                    renderInventory();
+                    setTimeout(() => inventoryModal.classList.add('active'), 10);
+                }
+            });
+            
+            closeInventoryModal.addEventListener('click', closeInventoryModalFunc);
+            
+            // Обработчики закрытия модальных окон по клику на фон
+            exchangeModal.addEventListener('click', (e) => {
+                if (e.target === exchangeModal && exchangeModal.classList.contains('active')) {
+                    closeExchangeModalFunc();
+                }
+            });
+            
+            promoModal.addEventListener('click', (e) => {
+                if (e.target === promoModal && promoModal.classList.contains('active')) {
+                    closePromoModalFunc();
+                }
+            });
+            
+            shopModal.addEventListener('click', (e) => {
+                if (e.target === shopModal && shopModal.classList.contains('active')) {
+                    closeShopModalFunc();
+                }
+            });
+            
+            inventoryModal.addEventListener('click', (e) => {
+                if (e.target === inventoryModal && inventoryModal.classList.contains('active')) {
+                    closeInventoryModalFunc();
+                }
+            });
+            
+            // Обработчик клавиши ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Escape') {
+                    if (exchangeModal.classList.contains('active')) {
+                        closeExchangeModalFunc();
+                    }
+                    if (promoModal.classList.contains('active')) {
+                        closePromoModalFunc();
+                    }
+                    if (shopModal.classList.contains('active')) {
+                        closeShopModalFunc();
+                    }
+                    if (inventoryModal.classList.contains('active')) {
+                        closeInventoryModalFunc();
+                    }
+                    if (tradingModal.classList.contains('active')) {
+                        closeTradingModalFunc();
+                    }
+                }
+                if (e.code === 'Space' && !exchangeModal.classList.contains('active') && 
+                    !promoModal.classList.contains('active') && 
+                    !shopModal.classList.contains('active') && 
+                    !inventoryModal.classList.contains('active') &&
+                    !tradingModal.classList.contains('active')) {
+                    e.preventDefault();
+                    const rect = clickArea.getBoundingClientRect();
+                    const x = rect.width / 2;
+                    const y = rect.height / 2;
+                    
+                    if (window.antiAutoClick.canClick(x, y)) {
+                        handleClick({ clientX: rect.left + x, clientY: rect.top + y });
+                    }
+                }
+            });
+            
+            // Инициализация интервалов
+            setInterval(updateCPS, 500);
+            setInterval(updateExchangeRate, 8000);
+            setInterval(saveGame, 30000);
+            
+            // Автоматическое обновление трейдов
+            setInterval(() => {
+                if (tradingModal.classList.contains('active') && currentTradingLayer === 'active') {
+                    renderTrades();
+                }
+            }, 1000);
+        });
+
+        // Функции закрытия модальных окон
+        function closeExchangeModalFunc() {
+            exchangeModal.classList.add('closing');
+            exchangeModal.classList.remove('active');
+            exchangeBtnTop.textContent = '💎 ОБМЕН';
+            exchangeBtnTop.style.background = 'linear-gradient(135deg, #0088CC, #006699)';
+            setTimeout(() => {
+                exchangeModal.classList.remove('closing');
+                exchangeModal.style.display = 'none';
+            }, 300);
+        }
+
+        function closePromoModalFunc() {
+            promoModal.classList.add('closing');
+            promoModal.classList.remove('active');
+            promoBtnTop.textContent = '🎁 ПРОМОКОДЫ';
+            promoBtnTop.style.background = 'linear-gradient(135deg, #FF4081, #D81B60)';
+            setTimeout(() => {
+                promoModal.classList.remove('closing');
+                promoModal.style.display = 'none';
+            }, 300);
+        }
+
+        function closeShopModalFunc() {
+            shopModal.classList.add('closing');
+            shopModal.classList.remove('active');
+            shopBtnTop.textContent = '🛒 МАГАЗИН';
+            shopBtnTop.style.background = 'linear-gradient(135deg, #4CAF50, #2E7D32)';
+            setTimeout(() => {
+                shopModal.classList.remove('closing');
+                shopModal.style.display = 'none';
+            }, 300);
+        }
+
+        function closeInventoryModalFunc() {
+            inventoryModal.classList.add('closing');
+            inventoryModal.classList.remove('active');
+            inventoryBtnTop.textContent = '🎒 ИНВЕНТАРЬ';
+            inventoryBtnTop.style.background = 'linear-gradient(135deg, #FF9800, #EF6C00)';
+            setTimeout(() => {
+                inventoryModal.classList.remove('closing');
+                inventoryModal.style.display = 'none';
+            }, 300);
+        }
+
+        // Сохранение при закрытии страницы
+        window.addEventListener('beforeunload', saveGame);
+    </script>
+</body>
+</html>
